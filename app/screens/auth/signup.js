@@ -140,7 +140,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         height: 50,
         borderRadius: 25,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         marginHorizontal: 10,
         alignSelf: 'stretch',
         alignItems: 'center',

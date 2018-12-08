@@ -15,7 +15,7 @@ export default class Options extends Component {
         if (this.props.buttonText === 'PENDING') {
             color = Colors.black
         } else if (this.props.buttonText === 'VERIFIED') {
-            color = Colors.green
+            color = Colors.blue
         } else if (this.props.buttonText === 'INCOMPLETE' || this.props.buttonText === 'DENIED') {
             color = Colors.red
         }

@@ -5,7 +5,7 @@ import Colors from './../config/colors'
 export default class Account extends Component {
     constructor(props) {
         super(props);
-        const color = this.props.data.active === true ? Colors.lightgray : Colors.green
+        const color = this.props.data.active === true ? Colors.lightgray : Colors.blue
         this.state = {
             balance: 0,
             color,

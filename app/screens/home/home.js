@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
     },
     balance: {
         flex: 1,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         justifyContent: 'flex-start',
         alignItems: 'center',
     },
@@ -265,10 +265,10 @@ const styles = StyleSheet.create({
         height: 100,
         top: 200,
         left: 40,
-        backgroundColor: 'green',
+        backgroundColor: 'blue',
     },
     submit: {
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         height: 50,
         borderRadius: 25,
         flex: 1,

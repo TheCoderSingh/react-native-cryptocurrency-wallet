@@ -23,7 +23,7 @@ export default class Account extends Component {
           <View style={styles.buttons}>
             {this.props.mobile.verified !== true ?
               <TouchableHighlight
-                style={[styles.button, { backgroundColor: Colors.lightblue }]}
+                style={[styles.button, { backgroundColor: Colors.blue }]}
                 onPress={() => this.props.verify(this.props.mobile.number)} >
                 <Text style={styles.buttonText}>
                   Verify
@@ -33,14 +33,14 @@ export default class Account extends Component {
             }
             {this.props.mobile.primary === true ?
               <TouchableHighlight
-                style={[styles.button, { backgroundColor: Colors.green }]}
+                style={[styles.button, { backgroundColor: Colors.blue }]}
                 onPress={null} >
                 <Text style={styles.buttonText}>
                   Primary
                 </Text>
               </TouchableHighlight> :
               <TouchableHighlight
-                style={[styles.button, { backgroundColor: Colors.lightblue }]}
+                style={[styles.button, { backgroundColor: Colors.blue }]}
                 onPress={() => this.props.makePrimary(this.props.mobile.id)} >
                 <Text style={styles.buttonText}>
                   Make Primary

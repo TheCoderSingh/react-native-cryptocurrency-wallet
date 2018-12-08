@@ -126,7 +126,7 @@ export default class Receive extends Component {
                             <Text style={{color: Colors.black, paddingVertical: 20}}>
                                 Please include a memo text when funding your Luuun account.
                                 Your memo is <Text
-                                style={{fontWeight: 'bold'}}>{this.state.cryptoAddress.reference.replace("*luuun.com", "")}.{"\n"}{"\n"}</Text>
+                                style={{fontWeight: 'bold'}}>{this.state.cryptoAddress.reference.replace("*reecore.org", "")}.{"\n"}{"\n"}</Text>
 
                                 <Text style={{color: Colors.black}}>
                                     If you do not specify a memo text when funding your account,
@@ -138,8 +138,8 @@ export default class Receive extends Component {
                                 <Text style={{color: Colors.black}}>
                                     Luuun supports the Stellar federation address protocol.
                                     If your client supports this protocol too, you can send
-                                    lumens to {this.state.cryptoAddress.reference.replace("*luuun.com", "")}*<Text
-                                    style={{color: Colors.lightblue}}>luuun.com.</Text>{"\n"}{"\n"}
+                                    lumens to {this.state.cryptoAddress.reference.replace("*reecore.org", "")}*<Text
+                                    style={{color: Colors.blue}}>reecore.org.</Text>{"\n"}{"\n"}
                                 </Text>
                                 Happy Luuuning!
                             </Text>

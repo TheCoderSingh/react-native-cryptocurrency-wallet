@@ -117,7 +117,7 @@ export default class Login extends Component {
                     <TouchableHighlight
                         style={styles.forgetPassword}
                         onPress={() => this.props.navigation.navigate("ForgetPassword")}>
-                        <Text style={{color: Colors.lightblue}}>
+                        <Text style={{color: Colors.blue}}>
                             Forgot Password?
                         </Text>
                     </TouchableHighlight>
@@ -143,7 +143,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         height: 50,
         borderRadius: 25,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         marginHorizontal:10,
         alignItems: 'center',
         justifyContent: 'center',
@@ -154,7 +154,7 @@ const styles = StyleSheet.create({
         height: 50,
         backgroundColor: 'white',
         width: "100%",
-        borderColor: Colors.lightblue,
+        borderColor: Colors.blue,
         alignItems: 'center',
         justifyContent: 'center',
     },

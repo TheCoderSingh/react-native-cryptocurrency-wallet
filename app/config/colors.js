@@ -1,9 +1,8 @@
 export default {
   red: '#ED675A',
-  green: '#03DBBB',
   black: '#4D4D4D',
   darkblue: '#2470A0',
-  lightblue: '#01C68B',
+  blue: '#0A2D67',
   lightgray: '#EBEBEB',
   darkgray: '#4D4D4D',
   drawerHeaderText: '#C0C9CF',
