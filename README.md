@@ -1,7 +1,7 @@
-# Luuun wallet | React Native
+# Reex wallet | React Native
 
 Try out the demo on Android or iOS here:
-https://expo.io/@luuun/luuun
+https://expo.io/@reex/reex
 (first install Expo on your phone)
 
 ## Prerequisites
