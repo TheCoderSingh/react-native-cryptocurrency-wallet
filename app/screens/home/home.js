@@ -7,7 +7,7 @@ import Transactions from './transactions'
 import Auth from './../../util/auth'
 import ResetNavigation from './../../util/resetNavigation'
 import Colors from './../../config/colors'
-import StellarService from './../../services/stellarService'
+import ReexService from '../../services/reexService'
 import Header from './../../components/header'
 
 export default class Home extends Component {
@@ -82,11 +82,24 @@ export default class Home extends Component {
                 await this.logout()
             }
             else {
-                let stellar_address = await StellarService.getAddress()
-                if (stellar_address.status === 'error') {
-                    ResetNavigation.dispatchToSingleRoute(this.props.navigation, "SetUsername")
+                let reex_address = await ReexService.getWallet(responseJson.data.id, responseJson.data.email)
+                console.log(JSON.stringify(reex_address))
+                if (reex_address.status === 'error') {
+                    let wallet = await ReexService.createWallet(responseJson.data.id, responseJson.data.email);
+                    if (wallet.status === 'success') {
+                        AsyncStorage.removeItem('wallet')
+                        AsyncStorage.setItem('wallet', JSON.stringify(wallet))
+                        this.setState({ ready: true })
+                    }
+                    else {
+                        this.setState({ ready: false })
+                    }
                 }
                 else {
+                    console.log('in success')
+                    console.log(JSON.stringify(reex_address))
+                    AsyncStorage.removeItem('wallet')
+                    AsyncStorage.setItem('wallet', JSON.stringify(reex_address))
                     this.setState({ ready: true })
                 }
             }
@@ -98,29 +111,15 @@ export default class Home extends Component {
     }
 
     getBalanceInfo = async () => {
-        let responseJson = await UserInfoService.getActiveAccount()
+        let reex_address = await ReexService.getWallet('a882e28c-5bd1-4bab-b862-f5a6766033f4', 'danehollenbach@gmail.com')
+        const wallet = await AsyncStorage.getItem('wallet')
+        console.log('getting balance')
+        console.log(JSON.stringify(reex_address))
+        let responseJson = await ReexService.getBalance(wallet.id, wallet.email)
         if (responseJson.status === "success") {
-            let account = responseJson.data.results[0].currencies[0]
-            let settings = account.settings
-            if (settings.allow_transactions === false) {
-                this.setState({
-                    creditSwitch: false,
-                    debitSwitch: false
-                })
-            }
-            if (settings.allow_debit_transactions === false) {
-                this.setState({
-                    debitSwitch: false
-                })
-            }
-            if (settings.allow_credit_transactions === false) {
-                this.setState({
-                    creditSwitch: false
-                })
-            }
-            AsyncStorage.setItem('currency', JSON.stringify(account.currency))
-            this.setState({symbol: account.currency.symbol})
-            this.setState({balance: this.setBalance(account.available_balance, account.currency.divisibility)})
+            AsyncStorage.setItem('currency', JSON.stringify(responseJson))
+            this.setState({symbol: responseJson.symbol})
+            this.setState({balance: this.setBalance(responseJson.available_balance, responseJson.divisibility)})
         }
         else {
             this.logout()

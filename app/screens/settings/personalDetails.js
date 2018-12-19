@@ -14,7 +14,7 @@ import {
 import CountryPicker from 'react-native-country-picker-modal'
 import Modal from 'react-native-modal'
 import UserInfoService from './../../services/userInfoService'
-import stellarService from './../../services/stellarService'
+import reexService from '../../services/reexService'
 import ResetNavigation from './../../util/resetNavigation'
 import Colors from './../../config/colors'
 import Header from './../../components/header'
@@ -43,7 +43,7 @@ export default class Settings extends Component {
             mobile_number: '',
             language: '',
             modalVisible: false,
-            stellar_username: '',
+            reex_username: '',
             languageModalVisible: false,
             first_name_color: false,
             last_name_color: false,
@@ -51,20 +51,24 @@ export default class Settings extends Component {
         }
     }
 
-    getStellarUsername = async () => {
-        let stellar_address = await stellarService.getAddress()
-        if (stellar_address && stellar_address.details && stellar_address.details.memo) {
+    getReexWallet = async () => {
+        const user = await AsyncStorage.getItem('user')
+        let reex_address = await reexService.getWallet(user.id, user.email)
+        if (reex_address && reex_address.email) {
             this.setState({
-                stellar_username: stellar_address.details.memo,
+                reex_username: reex_address.email,
             })
         }
-        else if (stellar_address.status === 'error') {
-            ResetNavigation.dispatchToSingleRoute(this.props.navigation, "SetUsername")
+        else if (reex_address.status === 'error') {
+            let reex_wallet = await reexService.createWallet(user.id, user.email)
+            this.setState({
+                reex_username: reex_wallet.email
+            })
         }
     }
 
     async componentWillMount() {
-        this.getStellarUsername()
+        this.getReexWallet()
         const value = await AsyncStorage.getItem('user')
 
         const user = JSON.parse(value)
@@ -175,7 +179,7 @@ export default class Settings extends Component {
                             editable={false}
                             autoCapitalize="none"
                             underlineColorAndroid="white"
-                            value={this.state.stellar_username}
+                            value={this.state.reex_username}
                         />
                         <TextInput
                             title="First name"

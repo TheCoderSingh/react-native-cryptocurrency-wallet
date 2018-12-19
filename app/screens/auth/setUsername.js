@@ -1,6 +1,6 @@
 import React, { Component } from 'react'
 import { View, KeyboardAvoidingView, StyleSheet, AsyncStorage, TouchableHighlight, Text, Alert } from 'react-native'
-import StellarService from './../../services/stellarService'
+import ReexService from '../../services/reexService'
 import ResetNavigation from './../../util/resetNavigation'
 import TextInput from './../../components/textInput'
 import Colors from './../../config/colors'
@@ -31,21 +31,21 @@ export default class SetUsername extends Component {
   }
 
   verify = async () => {
-    let response = await StellarService.setUsername(this.state.username)
+    let response = await ReexService.setUsername(this.state.username)
     console.log(response)
     if (response.status === 403 || response.status === 401) {
         await AsyncStorage.removeItem("token")
         await AsyncStorage.removeItem("user")
         Auth.logout(this.props.navigation)
     }
-    let stellarResponse = await response.json()
-    console.log(stellarResponse)
-    if (stellarResponse.federated_address) {
+    let reexResponse = await response.json()
+    console.log(reexResponse)
+    if (reexResponse.federated_address) {
       ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home")
     }
     else {
       Alert.alert('Error',
-        stellarResponse.data[0],
+        reexResponse.data[0],
         [{ text: 'OK' }])
     }
   }

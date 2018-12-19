@@ -18,7 +18,7 @@ import TextInput from './../../../../components/textInput'
 
 export default class AmountEntry extends Component {
     static navigationOptions = {
-        title: 'Verify mobile number',
+        title: 'Verify with two factor auth app',
     }
 
     constructor(props) {
@@ -53,7 +53,7 @@ export default class AmountEntry extends Component {
                 <Header
                     navigation={this.props.navigation}
                     back
-                    title="Verify mobile number"
+                    title="Verify with mfa app"
                 />
                 <KeyboardAvoidingView style={styles.mainContainer} behavior={'padding'}>
                     <View style={{flex: 1}}>

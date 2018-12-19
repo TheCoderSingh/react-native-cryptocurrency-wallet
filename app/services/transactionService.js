@@ -9,11 +9,10 @@ var transactionService = {
     return BaseService.getWithFullUrl(url);
   },
 
-  sendMoney: (amount, recipient, note) => {
+  sendMoney: (amount, recipient) => {
     var data = {
       amount,
       recipient,
-      note,
     }
     return BaseService.post('transactions/transfer/', data)
   },

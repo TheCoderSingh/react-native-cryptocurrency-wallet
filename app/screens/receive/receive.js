@@ -1,7 +1,7 @@
 import React, {Component} from 'react'
-import {View, Text, StyleSheet, Image, Clipboard, TouchableHighlight, Alert} from 'react-native'
+import {View, Text, StyleSheet, Image, Clipboard, TouchableHighlight, Alert, AsyncStorage} from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import stellarService from './../../services/stellarService'
+import reexService from '../../services/reexService'
 import Colors from './../../config/colors'
 import Header from './../../components/header'
 import Modal from 'react-native-modal'
@@ -18,7 +18,6 @@ export default class Receive extends Component {
             cryptoAddress: {
                 qrCode: '',
                 address: '',
-                memo: '',
                 reference: '',
                 modalVisible: false,
             },
@@ -36,13 +35,12 @@ export default class Receive extends Component {
         })
     }
     getCryptoAddress = async () => {
-        const cryptoAddressResponse = await stellarService.getAddress()
-        //console.log(cryptoAddressResponse)
+        const user = await AsyncStorage.getItem('user')
+        const cryptoAddressResponse = await reexService.getWallet(user.id, user.email)
+        console.log(cryptoAddressResponse)
         const {cryptoAddress} = this.state
-        cryptoAddress.qrCode = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' + cryptoAddressResponse.reference + '&choe=UTF-8'
-        cryptoAddress.address = cryptoAddressResponse.details.address
-        cryptoAddress.memo = cryptoAddressResponse.details.memo
-        cryptoAddress.reference = cryptoAddressResponse.reference
+        cryptoAddress.qrCode = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' + cryptoAddressResponse.addresses[0].myAddress + '&choe=UTF-8'
+        cryptoAddress.address = cryptoAddressResponse.addresses[0].myAddress
 
         console.log(cryptoAddress)
         this.setState({cryptoAddress})
@@ -63,30 +61,7 @@ export default class Receive extends Component {
                     style={{width: 300, height: 300}}
                     source={{uri: this.state.cryptoAddress.qrCode}}
                 />
-                <Text style={styles.text}>
-                    {this.state.cryptoAddress.reference}
-                </Text>
                 <View style={styles.boxed}>
-                    <View style={styles.memoIcon}>
-                        <Text style={styles.memoText}>
-                            Memo: {this.state.cryptoAddress.memo}
-                        </Text>
-                        <TouchableHighlight
-                            underlayColor={'white'}
-                            onPress={() => {
-                                Clipboard.setString(this.state.cryptoAddress.memo)
-                                Alert.alert(
-                                    null,
-                                    'Copied',
-                                )
-                            }}>
-                            <Icon
-                                name="content-copy"
-                                size={30}
-                                color={Colors.black}
-                            />
-                        </TouchableHighlight>
-                    </View>
                     <View style={styles.memoIcon}>
                         <Text style={[styles.memoText, {fontSize: 10}]}>
                             {this.state.cryptoAddress.address}

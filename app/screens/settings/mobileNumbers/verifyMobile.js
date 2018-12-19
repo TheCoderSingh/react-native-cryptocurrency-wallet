@@ -8,7 +8,7 @@ import Header from './../../../components/header'
 
 export default class AmountEntry extends Component {
   static navigationOptions = {
-    title: 'Verify mobile number',
+    title: 'Verify with mfa app',
   }
 
   constructor(props) {
@@ -44,7 +44,7 @@ export default class AmountEntry extends Component {
         <Header
           navigation={this.props.navigation}
           back
-          title="Verify mobile number"
+          title="Verify with mfa app"
         />
         <KeyboardAvoidingView style={styles.container} behavior={'padding'}>
           <View style={{ flex: 1 }}>

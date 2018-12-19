@@ -133,7 +133,7 @@ export default class SendTo extends Component {
             this.setState({reference: this.state.searchText})
         }
 
-        this.props.navigation.navigate("SendMoney", {reference: this.state.searchText, memo: ""})
+        this.props.navigation.navigate("SendMoney", {reference: this.state.searchText})
     }
 
     goToBarcodeScanner = () => {
@@ -154,7 +154,7 @@ export default class SendTo extends Component {
                         <View style={{flex: 1}}>
                             <TextInput
                                 title="Recipient"
-                                placeholder="Enter email, stellar address or mobile"
+                                placeholder="Enter reex address"
                                 autoCapitalize="none"
                                 underlineColorAndroid="white"
                                 value={this.state.searchText}
@@ -188,7 +188,7 @@ export default class SendTo extends Component {
                         <View style={{flex: 1}}>
                             <TextInput
                                 title="Recipient"
-                                placeholder="Enter email, stellar address or mobile"
+                                placeholder="Enter reex address"
                                 fontSize={this.state.searchText.length == 0 ? 18 : 22}
                                 autoCapitalize="none"
                                 underlineColorAndroid="white"

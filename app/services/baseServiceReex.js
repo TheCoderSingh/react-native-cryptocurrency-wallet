@@ -1,7 +1,7 @@
 import { AsyncStorage, Alert } from 'react-native'
 
-import Constants from './../config/constants'
-const baseUrl = Constants.stellar_service_url
+import Constants from '../config/constants'
+const baseUrl = Constants.reex_service_url
 
 let getHeaders = async () => {
   const token = await AsyncStorage.getItem('token')
@@ -53,7 +53,7 @@ let _apiCallWithoutData = async (url, method) => {
       headers,
       credentials: 'omit',
     })
-    //console.log(response)
+    console.log(response)
     let responseJson = await response.json()
     if (response.status === 403 || response.status === 401) {
         await AsyncStorage.removeItem("token")

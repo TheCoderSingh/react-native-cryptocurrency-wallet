@@ -10,10 +10,9 @@ import {
     Alert,
     TouchableWithoutFeedback
 } from 'react-native'
-import stellarService from './../../services/stellarService'
+import reexService from '../../services/reexService'
 import ResetNavigation from './../../util/resetNavigation'
 import TextInput from './../../components/textInput'
-import UserInfoService from './../../services/userInfoService'
 import Colors from './../../config/colors'
 import Header from './../../components/header'
 import Big from 'big.js'
@@ -31,15 +30,13 @@ export default class AmountEntry extends Component {
         this.state = {
             reference: params.reference,
             amount: 0,
-            memo: params.memo,
             balance: 0,
-            note: '',
             disabled: false
         }
     }
 
     transferConfirmed = async (amount) => {
-        let responseJson = await stellarService.sendMoney(amount, this.state.memo, this.state.reference, 'XLM', 'default')
+        let responseJson = await reexService.sendMoney(amount, this.state.reference, 'default')
         if (responseJson.status === 201) {
             Alert.alert('Success',
                 "Transaction successful",
@@ -93,10 +90,10 @@ export default class AmountEntry extends Component {
         return balance
     }
     getBalanceInfo = async () => {
-        let responseJson = await UserInfoService.getActiveAccount()
+        const wallet = await AsyncStorage.getItem('wallet')
+        let responseJson = await reexService.getBalance(wallet.id, wallet.email)
         if (responseJson.status === "success") {
-            let account = responseJson.data.results[0].currencies[0]
-            this.setState({ balance: this.setBalance(account.available_balance, account.currency.divisibility) })
+            this.setState({ balance: this.setBalance(responseJson.available_balance, responseJson.divisibility) })
         }
     }
 
