@@ -19,7 +19,7 @@ import Big from 'big.js'
 
 export default class AmountEntry extends Component {
     static navigationOptions = {
-        title: 'Send money',
+        title: 'Send Reex',
     }
 
 
@@ -90,7 +90,7 @@ export default class AmountEntry extends Component {
         return balance
     }
     getBalanceInfo = async () => {
-        const wallet = await AsyncStorage.getItem('wallet')
+        const wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
         let responseJson = await reexService.getBalance(wallet.id, wallet.email)
         if (responseJson.status === "success") {
             this.setState({ balance: this.setBalance(responseJson.available_balance, responseJson.divisibility) })
@@ -122,7 +122,7 @@ export default class AmountEntry extends Component {
                 <Header
                     navigation={this.props.navigation}
                     back
-                    title="Send money"
+                    title="Send Reex"
                 />
                 <KeyboardAvoidingView style={styles.container} behavior={'padding'}>
                     <ScrollView keyboardDismissMode={'interactive'}>
@@ -133,15 +133,6 @@ export default class AmountEntry extends Component {
                             keyboardType="numeric"
                             underlineColorAndroid="white"
                             onChangeText={this.amountChanged}
-                        />
-                        <TextInput
-                            title="Note"
-                            placeholder="Enter note here"
-                            autoCapitalize="none"
-                            placeholderTextColor="lightgray"
-                            multiline={true}
-                            underlineColorAndroid="white"
-                            onChangeText={(note) => this.setState({note})}
                         />
                     </ScrollView>
                     {   this.state.disabled ?

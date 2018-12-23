@@ -42,9 +42,11 @@ export default class Home extends Component {
         }
     }
 
-    componentDidMount() {
-        this.getBalanceInfo()
-        this.getUserInfo()
+    async componentDidMount() {
+        await AsyncStorage.removeItem('wallet')
+        await this.getUserInfo()
+        await this.getInitialisedWallet()
+        await this.getBalanceInfo()
     }
 
     setBalance = (balance, divisibility) => {
@@ -58,8 +60,8 @@ export default class Home extends Component {
     getUserInfo = async () => {
         let responseJson = await UserInfoService.getUserDetails()
         if (responseJson.status === "success") {
-            AsyncStorage.removeItem('user')
-            AsyncStorage.setItem('user', JSON.stringify(responseJson.data))
+            await AsyncStorage.removeItem('user')
+            await AsyncStorage.setItem('user', JSON.stringify(responseJson.data))
             let settings = responseJson.data.settings
             if (settings.allow_transactions === false) {
                 this.setState({
@@ -81,29 +83,6 @@ export default class Home extends Component {
             if (token === null) {
                 await this.logout()
             }
-            else {
-                let reex_address = await ReexService.getWallet(responseJson.data.id, responseJson.data.email)
-                console.log(JSON.stringify(reex_address))
-                if (reex_address.status === 'error') {
-                    let wallet = await ReexService.createWallet(responseJson.data.id, responseJson.data.email);
-                    if (wallet.status === 'success') {
-                        AsyncStorage.removeItem('wallet')
-                        AsyncStorage.setItem('wallet', JSON.stringify(wallet))
-                        this.setState({ ready: true })
-                    }
-                    else {
-                        this.setState({ ready: false })
-                    }
-                }
-                else {
-                    console.log('in success')
-                    console.log(JSON.stringify(reex_address))
-                    AsyncStorage.removeItem('wallet')
-                    AsyncStorage.setItem('wallet', JSON.stringify(reex_address))
-                    this.setState({ ready: true })
-                }
-            }
-            //this.setState({ ready: true })
         }
         else {
             await this.logout()
@@ -111,18 +90,48 @@ export default class Home extends Component {
     }
 
     getBalanceInfo = async () => {
-        let reex_address = await ReexService.getWallet('a882e28c-5bd1-4bab-b862-f5a6766033f4', 'danehollenbach@gmail.com')
-        const wallet = await AsyncStorage.getItem('wallet')
-        console.log('getting balance')
-        console.log(JSON.stringify(reex_address))
-        let responseJson = await ReexService.getBalance(wallet.id, wallet.email)
+        const wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+        let responseJson = await ReexService.getBalance(wallet.walletId, wallet.email)
+        console.log(responseJson)
         if (responseJson.status === "success") {
             AsyncStorage.setItem('currency', JSON.stringify(responseJson))
             this.setState({symbol: responseJson.symbol})
             this.setState({balance: this.setBalance(responseJson.available_balance, responseJson.divisibility)})
         }
-        else {
-            this.logout()
+        // else {
+        //     this.logout()
+        // }
+    }
+
+    getInitialisedWallet = async () => {
+        let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+        let user = JSON.parse(await AsyncStorage.getItem('user'))
+        let walletCreatedMessage = false
+        if (!wallet) {
+            let reexWallet = await ReexService.getWallet(user.id, user.email)
+            if (reexWallet.status === 'error') {
+                let wallet = await ReexService.createWallet(user.id, user.email);
+                if (wallet.status === 'success') {
+                    await AsyncStorage.removeItem('wallet')
+                    await AsyncStorage.setItem('wallet', JSON.stringify(wallet))
+                    walletCreatedMessage = true
+                    this.setState({ ready: true })
+                }
+                else {
+                    this.setState({ ready: false })
+                }
+            }
+            else {
+                await AsyncStorage.removeItem('wallet')
+                await AsyncStorage.setItem('wallet', JSON.stringify(reexWallet))
+                this.setState({ ready: true })
+            }
+        }
+
+        if (walletCreatedMessage) {
+            Alert.alert('Success',
+                "Your new wallet was successfully created!",
+                [{ text: 'OK', onPress: () => ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home") }])
         }
     }
 

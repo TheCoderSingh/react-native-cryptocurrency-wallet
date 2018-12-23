@@ -12,7 +12,7 @@ var reexService = {
   },
 
   getWallet: (id, email) => {
-    return baseServiceReex.get(`wallet/${id}/${email}/`)
+    return baseServiceReex.get(`wallets/${id}/${email}/`)
   },
 
   getBalance: (id, email) => {
@@ -31,7 +31,7 @@ var reexService = {
       id,
       email
     }
-    return baseServiceReex.post('', data)
+    return baseServiceReex.post('create', data)
   },
 }
 

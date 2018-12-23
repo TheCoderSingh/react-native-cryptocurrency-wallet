@@ -68,7 +68,7 @@ export default class GetVerified extends Component {
             mobile_number: user.mobile_number,
             basic_info: user.first_name + ' ' + user.last_name,
             basic_info_status: user.status,
-            address_status:user.kyc.addresses.status?user.kyc.addresses.status:'incomplete'
+            address_status:'incomplete'
         })
     }
 
