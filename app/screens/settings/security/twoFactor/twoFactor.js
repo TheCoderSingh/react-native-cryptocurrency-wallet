@@ -31,7 +31,6 @@ export default class TwoFactor extends Component {
                     back
                     title="Two factor"
                 />
-                <Option name="SMS" gotoAddress="TwoFactorSmsAuth" goTo={this.goTo}/>
                 <Option name="Token" gotoAddress="TwoFactorToken" goTo={this.goTo}/>
             </View>
         )

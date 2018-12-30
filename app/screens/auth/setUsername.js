@@ -32,14 +32,12 @@ export default class SetUsername extends Component {
 
   verify = async () => {
     let response = await ReexService.setUsername(this.state.username)
-    console.log(response)
     if (response.status === 403 || response.status === 401) {
         await AsyncStorage.removeItem("token")
         await AsyncStorage.removeItem("user")
         Auth.logout(this.props.navigation)
     }
     let reexResponse = await response.json()
-    console.log(reexResponse)
     if (reexResponse.federated_address) {
       ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home")
     }

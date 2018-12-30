@@ -36,21 +36,24 @@ export default class AmountEntry extends Component {
     }
 
     transferConfirmed = async (amount) => {
-        let responseJson = await reexService.sendMoney(amount, this.state.reference, 'default')
-        if (responseJson.status === 201) {
+        let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+        let user = JSON.parse(await AsyncStorage.getItem('user'))
+        let responseJson = await reexService.sendMoney(wallet.walletId, user.email, user.id, this.state.reference, amount)
+
+        if (responseJson.status === 200) {
             Alert.alert('Success',
                 "Transaction successful",
                 [{ text: 'OK', onPress: () => ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home") }])
         }
         else {
             Alert.alert('Error',
-                "Transaction failed",
+                "Transaction failed. Please verify your address and amount.",
                 [{ text: 'OK' }])
         }
     }
 
-    componentWillMount(){
-        this.getBalanceInfo()
+    async componentWillMount(){
+        await this.getBalanceInfo()
     }
 
     send = async () => {
@@ -65,12 +68,9 @@ export default class AmountEntry extends Component {
             const data = await AsyncStorage.getItem('currency')
             const currency = JSON.parse(data)
             let amount = new Big(this.state.amount)
-            for (let i = 0; i < currency.divisibility; i++) {
-              amount = amount.times(10)
-            }
             Alert.alert(
                 'Are you sure?',
-                'Send ' + currency.symbol + this.state.amount + ' to ' + this.state.reference,
+                'Send ' + this.state.amount + ' - ' + currency.symbol + ' to ' + this.state.reference,
                 [
                     {text: 'Yes', onPress: () => this.transferConfirmed(amount)},
                     {
@@ -83,17 +83,13 @@ export default class AmountEntry extends Component {
         }
     }
     setBalance = (balance, divisibility) => {
-        for (let i = 0; i < divisibility; i++) {
-            balance = balance / 10
-        }
-
         return balance
     }
     getBalanceInfo = async () => {
         const wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
-        let responseJson = await reexService.getBalance(wallet.id, wallet.email)
+        let responseJson = await reexService.getBalance(wallet.walletId, wallet.email)
         if (responseJson.status === "success") {
-            this.setState({ balance: this.setBalance(responseJson.available_balance, responseJson.divisibility) })
+            this.setState({ balance: responseJson.available_balance})
         }
     }
 

@@ -3,13 +3,10 @@ import {ScrollView, View, StyleSheet} from 'react-native'
 import {DrawerNavigator, DrawerItems} from 'react-navigation'
 import Home from './../screens/home/home'
 import Settings from './../screens/settings/settings'
-import About from './../screens/about/about'
-import Accounts from './../screens/accounts/accounts'
 import SendTo from './../screens/transfer/sendTo'
 import Receive from './../screens/receive/receive'
 import Logout from './../screens/auth/logout'
 import DrawerHeader from './../components/drawerHeader'
-import GetVerified from './../screens/settings/getVerified/getVerified2'
 import Colors from './../config/colors'
 
 const RouteConfigs = {
@@ -22,17 +19,8 @@ const RouteConfigs = {
     Receive: {
         screen: Receive,
     },
-    Accounts: {
-        screen: Accounts,
-    },
-    GetVerified: {
-        screen: GetVerified,
-    },
     Settings: {
         screen: Settings,
-    },
-    About: {
-        screen: About,
     },
     Logout: {
         screen: Logout,

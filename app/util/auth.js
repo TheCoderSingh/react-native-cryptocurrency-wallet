@@ -10,6 +10,7 @@ const auth = {
   logout: async (navigation) => {
     await AsyncStorage.removeItem("token")
     await AsyncStorage.removeItem("user")
+    await AsyncStorage.removeItem("wallet")
     resetNavigation.dispatchToSingleRoute(navigation, "InitialScreen")
   },
 }

@@ -1,5 +1,5 @@
 import React, {Component} from 'react'
-import {View, Alert, StyleSheet, ScrollView, TouchableHighlight, Text, KeyboardAvoidingView} from 'react-native'
+import {View, Alert, StyleSheet, ScrollView, TouchableHighlight, Text, KeyboardAvoidingView, AsyncStorage} from 'react-native'
 import AuthService from './../../services/authService'
 import Auth from './../../util/auth'
 import TextInput from './../../components/textInput'
@@ -31,11 +31,13 @@ export default class Signup extends Component {
     }
 
     signup = async () => {
+        await AsyncStorage.removeItem('wallet')
+        await AsyncStorage.removeItem('user')
         let data = this.state;
         if (data.mobile_number.length < 8) {
             delete data.mobile_number
         }
-        console.log(data)
+
         let responseJson = await AuthService.signup(data)
         if (responseJson.status === "success") {
             const loginInfo = responseJson.data

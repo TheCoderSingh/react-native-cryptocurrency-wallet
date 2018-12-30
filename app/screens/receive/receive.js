@@ -1,7 +1,6 @@
 import React, {Component} from 'react'
 import {View, Text, StyleSheet, Image, Clipboard, TouchableHighlight, Alert, AsyncStorage} from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import reexService from '../../services/reexService'
 import Colors from './../../config/colors'
 import Header from './../../components/header'
 

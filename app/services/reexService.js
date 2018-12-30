@@ -2,11 +2,13 @@ import baseServiceReex from './baseServiceReex'
 
 var reexService = {
 
-  sendMoney: (amount, reference, currency, account) => {
+  sendMoney: (walletId, email, userId, address, amount) => {
     var data = {
-      amount,
-      reference,
-      account,
+      Id: walletId,
+      Email: email,
+      UserId: userId,
+      ToAddress: address,
+      transferValue: amount
     }
     return baseServiceReex.post('spendCoins/', data)
   },
@@ -17,6 +19,10 @@ var reexService = {
 
   getBalance: (id, email) => {
     return baseServiceReex.get(`getbalance/${id}/${email}/`)
+  },
+
+  getTransactions: (id, email, from, count) => {
+    return baseServiceReex.get(`transactions/${id}/${email}/${from}/${count}/`)
   },
 
   setUsername: (username) => {

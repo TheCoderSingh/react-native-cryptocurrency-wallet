@@ -20,7 +20,6 @@ let getHeaders = async () => {
 
 let _apiCallWithData = async (url, method, data) => {
   try {
-    //console.log(data)
     let headers = await getHeaders()
     let response = await fetch(url, {
       method,
@@ -31,6 +30,7 @@ let _apiCallWithData = async (url, method, data) => {
     if (response.status === 403 || response.status === 401) {
         await AsyncStorage.removeItem("token")
         await AsyncStorage.removeItem("user")
+        await AsyncStorage.removeItem("wallet")
 
         return { "status": "error" }
     }
@@ -57,6 +57,7 @@ let _apiCallWithoutData = async (url, method) => {
     if (response.status === 403 || response.status === 401) {
         await AsyncStorage.removeItem("token")
         await AsyncStorage.removeItem("user")
+        await AsyncStorage.removeItem("wallet")
     }
     return responseJson
   } catch (error) {

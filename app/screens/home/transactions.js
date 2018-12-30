@@ -6,6 +6,7 @@ import {
     FlatList,
     ScrollView,
     RefreshControl,
+    AsyncStorage,
 } from 'react-native'
 import {ListItem} from "react-native-elements"
 import TransactionService from './../../services/transactionService'
@@ -13,6 +14,7 @@ import UserInfoService from './../../services/userInfoService'
 import SettingsService from './../../services/settingsService'
 import Colors from './../../config/colors'
 import Big from 'big.js'
+import ReexService from '../../services/reexService'
 
 export default class Transactions extends Component {
     constructor(props) {
@@ -30,21 +32,18 @@ export default class Transactions extends Component {
         };
     }
 
-    componentDidMount() {
-        this.getData()
+    async componentDidMount() {
+        await this.getData()
     }
 
     setData = async (responseJson) => {
         if (responseJson.status === "success") {
-            const data = this.state.data.concat(responseJson.data.results)
+            const data = this.state.data.concat(responseJson.data)
             this.setState({
                 data,
                 noTransaction: false,
-                nextUrl: responseJson.data.next,
+                nextUrl: 1,
             })
-        }
-        else {
-            this.props.logout()
         }
 
         if (this.state.data.length === 0) {
@@ -80,7 +79,14 @@ export default class Transactions extends Component {
         this.setState({
             data: [],
         })
-        let responseJson = await TransactionService.getAllTransactions()
+        let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+        let user = JSON.parse(await AsyncStorage.getItem('user'))
+        if (wallet === null) {
+            wallet = await ReexService.getWallet(user.id, user.email)
+            await AsyncStorage.removeItem('wallet')
+            await AsyncStorage.setItem('wallet', JSON.stringify(wallet))
+        }
+        let responseJson = await ReexService.getTransactions(wallet.walletId, user.email, 0, 20)
         this.setData(responseJson)
     }
 
@@ -106,11 +112,7 @@ export default class Transactions extends Component {
 
     getAmount = (amount, divisibility) => {
       amount = new Big(amount)
-      for (let i = 0; i < divisibility; i++) {
-        amount = amount.div(10)
-      }
-
-        return amount.toFixed(8).replace(/\.?0+$/, "")
+      return amount.toFixed(8).replace(/\.?0+$/, "")
     }
 
     render() {
@@ -147,11 +149,11 @@ export default class Transactions extends Component {
                         data={this.state.data}
                         renderItem={({item}) => (
                             <ListItem
-                                avatar={item.user.profile || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgmT5tM-IGcFDpqZ87p9zKGaWQuzpvAcDKfOTPYfx5A9zOmbTh8RMMFg'}
-                                title={item.tx_type === 'credit' ? "Received" : "Sent"}
-                                subtitle={moment(item.created).fromNow()}
-                                rightTitle={`${item.currency.symbol}${this.getAmount(item.amount, item.currency.divisibility)}`}
-                                rightTitleStyle={{'color': '#bdc6cf'}}
+                                avatar={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgmT5tM-IGcFDpqZ87p9zKGaWQuzpvAcDKfOTPYfx5A9zOmbTh8RMMFg'}
+                                title={item.category === 'receive' ? "Received" : "Sent"}
+                                subtitle={moment((new Date(item.timereceived*1000))).format('lll')}
+                                rightTitle={`${this.getAmount(item.amount, false)}`}
+                                rightTitleStyle={{'color': '#000000'}}
                                 containerStyle={{paddingRight: 20}}
                                 hideChevron
                                 roundAvatar
@@ -161,11 +163,11 @@ export default class Transactions extends Component {
                                 //containerStyle={{'backgroundColor':'#FAFBFC'}}
                             />
                         )}
-                        keyExtractor={tx => tx.id}
+                        keyExtractor={tx => tx.key}
                         onRefresh={this.handleRefresh.bind(this)}
                         refreshing={this.state.refreshing}
-                        onEndReached={this.handleLoadMore.bind(this)}
-                        onEndReachedThreshold={50}
+                        //onEndReached={this.handleLoadMore.bind(this)}
+                        //onEndReachedThreshold={50}
                     />
                 </View>
             )

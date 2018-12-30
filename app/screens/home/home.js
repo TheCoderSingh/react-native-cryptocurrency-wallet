@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { View, StyleSheet, AsyncStorage, TouchableHighlight, Text, Image, TouchableWithoutFeedback } from 'react-native'
+import { View, StyleSheet, AsyncStorage, TouchableHighlight, Text, Alert, Linking } from 'react-native'
 import moment from 'moment'
 import PopupDialog from 'react-native-popup-dialog'
 import UserInfoService from './../../services/userInfoService'
@@ -9,6 +9,7 @@ import ResetNavigation from './../../util/resetNavigation'
 import Colors from './../../config/colors'
 import ReexService from '../../services/reexService'
 import Header from './../../components/header'
+import Constants from './../../config/constants'
 
 export default class Home extends Component {
     static navigationOptions = {
@@ -43,17 +44,12 @@ export default class Home extends Component {
     }
 
     async componentDidMount() {
-        await AsyncStorage.removeItem('wallet')
         await this.getUserInfo()
         await this.getInitialisedWallet()
         await this.getBalanceInfo()
     }
 
     setBalance = (balance, divisibility) => {
-        for (let i = 0; i < divisibility; i++) {
-            balance = balance / 10
-        }
-
         return balance
     }
 
@@ -90,48 +86,53 @@ export default class Home extends Component {
     }
 
     getBalanceInfo = async () => {
-        const wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+        let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
         let responseJson = await ReexService.getBalance(wallet.walletId, wallet.email)
-        console.log(responseJson)
+
         if (responseJson.status === "success") {
             AsyncStorage.setItem('currency', JSON.stringify(responseJson))
             this.setState({symbol: responseJson.symbol})
-            this.setState({balance: this.setBalance(responseJson.available_balance, responseJson.divisibility)})
+            this.setState({balance: responseJson.available_balance})
         }
-        // else {
-        //     this.logout()
-        // }
+        else {
+            this.logout()
+        }
     }
 
     getInitialisedWallet = async () => {
         let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
         let user = JSON.parse(await AsyncStorage.getItem('user'))
-        let walletCreatedMessage = false
-        if (!wallet) {
-            let reexWallet = await ReexService.getWallet(user.id, user.email)
-            if (reexWallet.status === 'error') {
-                let wallet = await ReexService.createWallet(user.id, user.email);
-                if (wallet.status === 'success') {
-                    await AsyncStorage.removeItem('wallet')
-                    await AsyncStorage.setItem('wallet', JSON.stringify(wallet))
-                    walletCreatedMessage = true
-                    this.setState({ ready: true })
+
+        if (wallet === null) {
+             let reexWallet = await ReexService.getWallet(user.id, user.email)
+             if (reexWallet.status === 'error') {
+                 let newWallet = await ReexService.createWallet(user.id, user.email)
+                if (newWallet.status === 200) {
+                    let createdWallet = await ReexService.getWallet(user.id, user.email)
+                    if (createdWallet.status === 'success') {
+                        await AsyncStorage.removeItem('wallet')
+                        await AsyncStorage.setItem('wallet', JSON.stringify(createdWallet))
+                    }
+
+                    Alert.alert('Success',
+                        "Your new wallet was successfully created!",
+                        [{ text: 'OK', onPress: () => { 
+                            ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home") 
+                        }}])
                 }
                 else {
-                    this.setState({ ready: false })
+                    await AsyncStorage.removeItem('wallet')
+                    Alert.alert('Error',
+                        "An error occured while trying to create your wallet!",
+                        [{ text: 'OK', onPress: () => { 
+                            ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home")
+                        }}])
                 }
             }
             else {
                 await AsyncStorage.removeItem('wallet')
                 await AsyncStorage.setItem('wallet', JSON.stringify(reexWallet))
-                this.setState({ ready: true })
-            }
-        }
-
-        if (walletCreatedMessage) {
-            Alert.alert('Success',
-                "Your new wallet was successfully created!",
-                [{ text: 'OK', onPress: () => ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home") }])
+             }
         }
     }
 
@@ -145,11 +146,20 @@ export default class Home extends Component {
     }
 
     getAmount = (amount = 0, divisibility) => {
-        for (let i = 0; i < divisibility; i++) {
-            amount = amount / 10
-        }
-
         return amount.toFixed(8).replace(/\.?0+$/, "")
+    }
+
+    openLink = (txid) => {
+        Linking.canOpenURL(`${Constants.reex_explorer}${txid}`).then(supported => {
+          if (supported) {
+            Linking.openURL(`${Constants.reex_explorer}${txid}`)
+          }
+          else {
+            Alert.alert('Error',
+              'Don\'t know how to open URI: ' + `${Constants.reex_explorer}${txid}`,
+              [{ text: 'OK' }])
+          }
+        })
     }
 
     render() {
@@ -208,13 +218,28 @@ export default class Home extends Component {
                     height={250}>
                     <View style={{ flex: 1 }}>
                         <View style={{ flex: 3, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
-                            <Image
-                                source={require('./../../../assets/icons/placeholder.png')}
-                                style={{ height: 80, width: 80, margin: 10 }}
-                            />
+                        <View style={{ flex: 3, justifyContent: 'center', alignItems: 'center', padding: 20 }}>
                             <Text style={{ fontSize: 20, color: Colors.black }}>
-                                {this.state.dataToShow.label + ": " + this.state.dataToShow.currency.symbol + this.getAmount(this.state.dataToShow.amount, this.state.dataToShow.currency.divisibility)}
+                                {"Type: " + this.state.dataToShow.category}
                             </Text>
+                            <Text style={{ fontSize: 20, color: Colors.black }}>
+                                {this.getAmount(this.state.dataToShow.amount, false) + " REEX"}
+                            </Text>
+                            <Text style={{ fontSize: 20, color: Colors.black }}>
+                                {"Transaction Id:"}
+                            </Text>
+                        </View>
+                            <View style={styles.boxed}>
+                                <View style={styles.memoIcon}>
+                                    <Text style={[styles.memoText, {fontSize: 10}]}>
+                                        {this.state.dataToShow.txid}
+                                    </Text>
+                                    {/* <TouchableHighlight
+                                        underlayColor={'white'}
+                                        onPress={this.openLink(this.state.dataToShow.txid)}>
+                                    </TouchableHighlight> */}
+                                </View>
+                            </View>
                         </View>
                         <View style={{
                             flex: 1,
@@ -226,12 +251,12 @@ export default class Home extends Component {
                         }}>
                             <View style={{ flex: 2, justifyContent: 'center' }}>
                                 <Text style={{ fontSize: 15, alignSelf: "flex-start", color: Colors.black }}>
-                                    {moment(this.state.dataToShow.created).format('lll')}
+                                    {moment((new Date(this.state.dataToShow.timereceived*1000))).format('lll')}
                                 </Text>
                             </View>
                             <View style={{ flex: 1, justifyContent: 'center' }}>
                                 <Text style={{ fontSize: 15, alignSelf: "flex-end", color: Colors.black }}>
-                                    {this.state.dataToShow.status}
+                                    {"Confirmations: " + this.state.dataToShow.confirmations}
                                 </Text>
                             </View>
                         </View>
@@ -247,6 +272,11 @@ const styles = StyleSheet.create({
         flex: 1,
         flexDirection: 'column',
         backgroundColor: 'white',
+    },
+    boxed: {
+        flexDirection: 'column',
+        padding: 5,
+        backgroundColor: Colors.lightgray,
     },
     balance: {
         flex: 1,
