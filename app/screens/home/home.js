@@ -103,7 +103,14 @@ export default class Home extends Component {
         let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
         let user = JSON.parse(await AsyncStorage.getItem('user'))
 
-        if (wallet === null) {
+        if (!user.verification.email) {
+            // Alert.alert('Error',
+            //             "You must verify your email address!",
+            //             [{ text: 'OK', onPress: () => { 
+            //                 ResetNavigation.dispatchToSingleRoute(this.props.navigation, "SettingsEmailAddresses")
+            //             }}])
+        }
+        else if (wallet === null) {
              let reexWallet = await ReexService.getWallet(user.id, user.email)
              if (reexWallet.status === 'error') {
                  let newWallet = await ReexService.createWallet(user.id, user.email)
@@ -185,6 +192,8 @@ export default class Home extends Component {
                         <Text style={{ fontSize: 25, color: 'white' }}>
                             {this.state.symbol}
                         </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
                         <Text style={{ paddingLeft: 5, fontSize: 40, color: 'white' }}>
                             {this.state.balance.toFixed(4).replace(/0{0,2}$/, "")}
                         </Text>
@@ -192,7 +201,7 @@ export default class Home extends Component {
                 </View>
                 <View style={styles.transaction}>
                     <Transactions updateBalance={this.getBalanceInfo} showDialog={this.showDialog}
-                        logout={this.logout} />
+                        logout={this.logout} navigation={this.props.navigation} />
                 </View>
                 <View style={styles.buttonbar}>
                     <TouchableHighlight

@@ -116,7 +116,7 @@ export default class Transactions extends Component {
     }
 
     render() {
-        if (this.state.noTransaction) {
+        if (!this.state.verified) {
             return (
                 <View style={{flex: 1, backgroundColor: Colors.lightgray,paddingHorizontal:10}}>
                     <ScrollView
@@ -133,7 +133,36 @@ export default class Transactions extends Component {
                                 Welcome to {this.state.company.name}
                             </Text>
                             <Text style={{paddingTop: 15, fontSize: 18, fontWeight: 'normal', color: Colors.black}}>
-                                {this.state.verified ? null : "Please verify your email address to redeem any unclaimed transactions. "}
+                                {this.state.verified ? 
+                                    null : 
+                                    "You must verify your email address before you can view any transactions or use your wallet. " +
+                                    "Navigate to Settings -> Email Addresses -> Click 'Verify'. "}
+                                Pull to refresh your balance.
+                            </Text>
+                        </View>
+                    </ScrollView>
+                    
+                </View>
+            )
+        }
+        else if (this.state.noTransaction) {
+            return (
+                <View style={{flex: 1, backgroundColor: Colors.lightgray,paddingHorizontal:10}}>
+                    <ScrollView
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this.handleRefresh.bind(this)}
+                            />
+                        }>
+                        <View style={{
+                            marginTop: 10, flexDirection: 'column', backgroundColor: 'white', padding: 20
+                        }}>
+                            <Text style={{fontSize: 24, fontWeight: 'normal', color: Colors.black}}>
+                                Welcome to {this.state.company.name}
+                            </Text>
+                            <Text style={{paddingTop: 15, fontSize: 18, fontWeight: 'normal', color: Colors.black}}>
+                                {this.state.noTransaction ? "You currently have no transactions. " : null}
                                 Pull to refresh your balance.
                             </Text>
                         </View>
@@ -149,8 +178,8 @@ export default class Transactions extends Component {
                         data={this.state.data}
                         renderItem={({item}) => (
                             <ListItem
-                                avatar={'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgmT5tM-IGcFDpqZ87p9zKGaWQuzpvAcDKfOTPYfx5A9zOmbTh8RMMFg'}
-                                title={item.category === 'receive' ? "Received" : "Sent"}
+                                avatar={this.getAmount(item.amount, false) > 0 ? 'https://www.danehollenbach.com/assets/images/transaction-type-received.png' : 'https://www.danehollenbach.com/assets/images/transaction-type-sent.png'}
+                                title={this.getAmount(item.amount, false) > 0 ? "Received" : "Sent"}
                                 subtitle={moment((new Date(item.timereceived*1000))).format('lll')}
                                 rightTitle={`${this.getAmount(item.amount, false)}`}
                                 rightTitleStyle={{'color': '#000000'}}
@@ -158,16 +187,14 @@ export default class Transactions extends Component {
                                 hideChevron
                                 roundAvatar
                                 onPress={() => {
-                                    this.props.showDialog(item)
+                                    this.props.navigation.navigate("TransactionDetails", {item: item})
+                                    //this.props.showDialog(item)
                                 }}
-                                //containerStyle={{'backgroundColor':'#FAFBFC'}}
                             />
                         )}
                         keyExtractor={tx => tx.key}
                         onRefresh={this.handleRefresh.bind(this)}
                         refreshing={this.state.refreshing}
-                        //onEndReached={this.handleLoadMore.bind(this)}
-                        //onEndReachedThreshold={50}
                     />
                 </View>
             )

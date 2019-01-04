@@ -8,4 +8,5 @@ export default {
   drawerHeaderText: '#C0C9CF',
   transactionBackground: '#F7F7F7',
   drawerColor: '#333B42',
+  white: '#FFFFFF'
 }

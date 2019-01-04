@@ -13,7 +13,7 @@ export default class Account extends Component {
     }
 
     componentWillMount() {
-        this.setBalance(this.props.data.balance, 1)
+        this.setBalance(this.props.data.balance, false)
     }
 
     setBalance = (balance, divisibility) => {
