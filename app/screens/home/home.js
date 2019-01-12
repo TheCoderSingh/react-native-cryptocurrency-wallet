@@ -10,6 +10,7 @@ import Colors from './../../config/colors'
 import ReexService from '../../services/reexService'
 import Header from './../../components/header'
 import Constants from './../../config/constants'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 export default class Home extends Component {
     static navigationOptions = {
@@ -20,6 +21,8 @@ export default class Home extends Component {
         super(props)
         this.state = {
             balance: 0,
+            reexBtcPriceBalance: 0,
+            reexUsdBalance: 0,
             showTransaction: false,
             symbol: '',
             dataToShow: {
@@ -28,6 +31,8 @@ export default class Home extends Component {
             reference: '',
             creditSwitch: true,
             debitSwitch: true,
+            loading: false,
+            loadingMessage: '',
         }
     }
 
@@ -58,23 +63,6 @@ export default class Home extends Component {
         if (responseJson.status === "success") {
             await AsyncStorage.removeItem('user')
             await AsyncStorage.setItem('user', JSON.stringify(responseJson.data))
-            let settings = responseJson.data.settings
-            if (settings.allow_transactions === false) {
-                this.setState({
-                    creditSwitch: false,
-                    debitSwitch: false
-                })
-            }
-            if (settings.allow_debit_transactions === false) {
-                this.setState({
-                    debitSwitch: false
-                })
-            }
-            if (settings.allow_credit_transactions === false) {
-                this.setState({
-                    creditSwitch: false
-                })
-            }
             const token = await AsyncStorage.getItem('token')
             if (token === null) {
                 await this.logout()
@@ -86,34 +74,39 @@ export default class Home extends Component {
     }
 
     getBalanceInfo = async () => {
-        let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
-        let responseJson = await ReexService.getBalance(wallet.walletId, wallet.email)
-
-        if (responseJson.status === "success") {
-            AsyncStorage.setItem('currency', JSON.stringify(responseJson))
-            this.setState({symbol: responseJson.symbol})
-            this.setState({balance: responseJson.available_balance})
+        let user = JSON.parse(await AsyncStorage.getItem('user'))
+        if (!user.isVerified) {
+            return
         }
         else {
-            this.logout()
+            let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+            if (wallet !== null) {
+                let responseJson = await ReexService.getBalance(wallet.walletId, wallet.email)
+                if (responseJson.status === "success") {
+                    AsyncStorage.setItem('currency', JSON.stringify(responseJson))
+                    this.setState({symbol: responseJson.symbol})
+                    this.setState({balance: responseJson.available_balance})
+                    this.setState({reexBtcPriceBalance: responseJson.reexBtcPrice})
+                    this.setState({reexUsdBalance: responseJson.reexUsdPrice})
+                }
+                else {
+                    this.logout()
+                }
+            }
         }
     }
 
     getInitialisedWallet = async () => {
         let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
         let user = JSON.parse(await AsyncStorage.getItem('user'))
-
-        if (!user.verification.email) {
-            // Alert.alert('Error',
-            //             "You must verify your email address!",
-            //             [{ text: 'OK', onPress: () => { 
-            //                 ResetNavigation.dispatchToSingleRoute(this.props.navigation, "SettingsEmailAddresses")
-            //             }}])
+        if (!user.isVerified) {
+            return
         }
         else if (wallet === null) {
-             let reexWallet = await ReexService.getWallet(user.id, user.email)
-             if (reexWallet.status === 'error') {
-                 let newWallet = await ReexService.createWallet(user.id, user.email)
+            let reexWallet = await ReexService.getWallet(user.id, user.email)
+            if (reexWallet.status === 'error') {
+                this.setState({ loading: true, loadingMessage: 'Wallet initialising...' })
+                let newWallet = await ReexService.createWallet(user.id, user.email)
                 if (newWallet.status === 200) {
                     let createdWallet = await ReexService.getWallet(user.id, user.email)
                     if (createdWallet.status === 'success') {
@@ -135,11 +128,12 @@ export default class Home extends Component {
                             ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home")
                         }}])
                 }
+                this.setState({ loading: false, loadingMessage: '' })
             }
             else {
                 await AsyncStorage.removeItem('wallet')
                 await AsyncStorage.setItem('wallet', JSON.stringify(reexWallet))
-             }
+            }            
         }
     }
 
@@ -181,6 +175,11 @@ export default class Home extends Component {
         }];*/
         return (
             <View style={styles.container}>
+                <Spinner
+                    visible={this.state.loading}
+                    textContent={this.state.loadingMessage}
+                    textStyle={{color: '#FFF'}}
+                />
                 <Header
                     navigation={this.props.navigation}
                     drawer
@@ -189,13 +188,18 @@ export default class Home extends Component {
                 />
                 <View style={styles.balance}>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={{ fontSize: 25, color: 'white' }}>
+                        <Text style={{ fontSize: 20, color: 'white' }}>
                             {this.state.symbol}
                         </Text>
                     </View>
                     <View style={{ flexDirection: 'row' }}>
-                        <Text style={{ paddingLeft: 5, fontSize: 40, color: 'white' }}>
+                        <Text style={{ paddingLeft: 5, fontSize: 35, color: 'white' }}>
                             {this.state.balance.toFixed(4).replace(/0{0,2}$/, "")}
+                        </Text>
+                    </View>
+                    <View style={{ flexDirection: 'row' }}>
+                        <Text style={{ paddingLeft: 5, fontSize: 15, color: 'white' }}>
+                            {this.state.reexBtcPriceBalance > 1 ? this.state.reexBtcPriceBalance.toFixed(4).replace(/0{0,2}$/, "") : this.state.reexBtcPriceBalance.toFixed(8).replace(/0{0,6}$/, "")} BTC / $ {this.state.reexUsdBalance.toFixed(4).replace(/0{0,2}$/, "")}
                         </Text>
                     </View>
                 </View>

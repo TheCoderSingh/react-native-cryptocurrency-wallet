@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
 import {View, KeyboardAvoidingView, StyleSheet, TouchableHighlight, Text, Alert} from 'react-native'
-import SettingsService from './../../../services/settingsService'
 import ResetNavigation from './../../../util/resetNavigation'
 import TextInput from './../../../components/textInput'
 import Colors from './../../../config/colors'

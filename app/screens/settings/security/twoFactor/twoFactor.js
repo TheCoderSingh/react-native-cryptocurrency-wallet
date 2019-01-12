@@ -11,7 +11,7 @@ export default class TwoFactor extends Component {
     }
 
     goTo = async (path) => {
-        let responseJson = await AuthService.twoFactorAuth()
+        let responseJson = await AuthService.enableMfa()
         if (responseJson.status === "success") {
             const authInfo = responseJson.data
             this.props.navigation.navigate(path, {authInfo})

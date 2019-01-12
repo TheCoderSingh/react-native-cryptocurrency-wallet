@@ -26,54 +26,24 @@ export default class Receive extends Component {
 
     constructor(props) {
         super(props)
-        const params = this.props.navigation.state.params
+        const params = this.props.navigation.state.params.authInfo
+        let uri = `otpauth://totp/${params.issuer}:${params.account}?secret=${params.secret}&issuer=${params.issuer}&algorithm=SHA1&digits=6&period=30`
         this.state = {
-            imageURI: 'https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=undefined&choe=UTF-8',
-            otpauth_url: '',
+            imageURI: `https://chart.googleapis.com/chart?chs=250x250&cht=qr&chl=${uri}&choe=UTF-8`,
             token: '',
-            issuer: '',
-            account: '',
-            key: '',
-            delete: params.authInfo.token,
+            issuer: params.issuer,
+            account: params.account,
+            key: params.secret,
+            delete: params.isMfaEnabled,
         }
     }
 
     async componentWillMount() {
-        let responseJson = await AuthService.tokenAuthGet()
-        if (responseJson.status === "success") {
-            const tokenResponse = responseJson.data
-            this.setState({
-                otpauth_url: tokenResponse.otpauth_url,
-                issuer: tokenResponse.issuer,
-                account: tokenResponse.account,
-                key: tokenResponse.key,
-                imageURI: "https://chart.googleapis.com/chart?cht=qr&chs=200x200&chld=L|0&chl=" + tokenResponse.otpauth_url
-            })
-
-        }
-        else {
-            let responseJson = await AuthService.tokenAuthPost({})
-            if (responseJson.status === "success") {
-                const tokenResponse = responseJson.data
-                this.setState({
-                    otpauth_url: tokenResponse.otpauth_url,
-                    issuer: tokenResponse.issuer,
-                    account: tokenResponse.account,
-                    key: tokenResponse.key,
-                    imageURI: "https://chart.googleapis.com/chart?cht=qr&chs=200x200&chld=L|0&chl=" + tokenResponse.otpauth_url
-                })
-            } else {
-                Alert.alert('Error',
-                    responseJson.message,
-                    [{text: 'OK'}])
-            }
-        }
     }
 
     saveToken = async () => {
-        let responseJson = await AuthService.authVerify({token: this.state.token})
+        let responseJson = await AuthService.verifyMfa({code: this.state.token})
         if (responseJson.status === "success") {
-            const authInfo = responseJson.data
             await resetNavigation.dispatchUnderTwoFactor(this.props.navigation)
         }
         else {
@@ -84,7 +54,7 @@ export default class Receive extends Component {
     }
 
     deleteTwoFactorAuth = async () => {
-        let responseJson = await AuthService.authTokenDelete()
+        let responseJson = await AuthService.deleteMfa()
         if (responseJson.status === "success") {
             this.setState({
                 delete: !this.state.delete

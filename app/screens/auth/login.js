@@ -10,6 +10,7 @@ import {
     Text
 } from 'react-native'
 import AuthService from './../../services/authService'
+import UserInfoService from './../../services/userInfoService'
 import Auth from './../../util/auth'
 import ResetNavigation from './../../util/resetNavigation'
 import TextInput from './../../components/textInput'
@@ -45,18 +46,17 @@ export default class Login extends Component {
 
     login = async () => {
         var body = {
-            "user": this.state.email,
-            "company": this.state.company,
+            "email": this.state.email,
             "password": this.state.password,
         }
         let responseJson = await AuthService.login(body)
         if (responseJson.status === "success") {
             const loginInfo = responseJson.data
             await AsyncStorage.setItem("token", loginInfo.token)
-            let twoFactorResponse = await AuthService.twoFactorAuth()
-            if (twoFactorResponse.status === "success") {
-                const authInfo = twoFactorResponse.data
-                if (authInfo.sms === true || authInfo.token===true) {
+            let userDetails = await UserInfoService.getUserDetails()
+            if (userDetails.status === "success") {
+                const authInfo = userDetails.data
+                if (authInfo.isMfaEnabled === true) {
                     this.props.navigation.navigate("AuthVerifySms", {loginInfo:loginInfo,isTwoFactor:true})
                 }
                 else {
@@ -65,7 +65,7 @@ export default class Login extends Component {
             }
             else {
                 Alert.alert('Error',
-                    twoFactorResponse.message,
+                    userDetails.message,
                     [{text: 'OK'}])
             }
         }

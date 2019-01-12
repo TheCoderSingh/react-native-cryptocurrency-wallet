@@ -9,9 +9,7 @@ import {
     AsyncStorage,
 } from 'react-native'
 import {ListItem} from "react-native-elements"
-import TransactionService from './../../services/transactionService'
 import UserInfoService from './../../services/userInfoService'
-import SettingsService from './../../services/settingsService'
 import Colors from './../../config/colors'
 import Big from 'big.js'
 import ReexService from '../../services/reexService'
@@ -47,14 +45,9 @@ export default class Transactions extends Component {
         }
 
         if (this.state.data.length === 0) {
-            let responseJson = await UserInfoService.getCompany()
-            let responseEmails = await SettingsService.getAllEmails()
-            if (responseJson.status === "success" && responseEmails.status === "success") {
-                let emails = responseEmails.data
-                let verified = emails.filter(function (node) {
-                    return node.verified === true
-                })
-                if (verified.length !== 0) {
+            let responseJson = await UserInfoService.getUserDetails()
+            if (responseJson.status === "success") {
+                if (responseJson.data.isVerified) {
                     this.setState({
                         company: responseJson.data,
                         noTransaction: true,
@@ -102,12 +95,6 @@ export default class Transactions extends Component {
 
 
     handleLoadMore = async () => {
-        if (this.state.refreshing !== true && this.state.loading !== true && this.state.nextUrl) {
-            this.setState({'loading': true})
-            let responseJson = await TransactionService.getNextTransactions(this.state.nextUrl)
-            this.setData(responseJson)
-            this.setState({'loading': false})
-        }
     }
 
     getAmount = (amount, divisibility) => {

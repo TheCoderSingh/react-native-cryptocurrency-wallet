@@ -65,29 +65,6 @@ let _apiCallWithoutData = async (url, method) => {
   }
 }
 
-let _apiCallFileUpload = async (url, method, data) => {
-  try {
-    const token = await AsyncStorage.getItem('token')
-    let headers = {
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Token ' + token,
-    }
-    let response = await fetch(url, {
-      method,
-      headers,
-      body: data,
-    })
-    let responseJson = await response.json()
-    return responseJson
-  } catch (error) {
-    Alert.alert(
-      "Error",
-      JSON.stringify(error),
-      [{ text: 'OK' }]
-    )
-  }
-}
-
 const baseService = {
 
   get: (endPoint) => {
@@ -112,14 +89,6 @@ const baseService = {
 
   delete: (endPoint) => {
     return _apiCallWithoutData(baseUrl + endPoint, "DELETE", {})
-  },
-
-  fileUpload: (endPoint, data) => {
-    return _apiCallFileUpload(baseUrl + endPoint, "PATCH", data)
-  },
-
-  documentUpload: (endPoint, data) => {
-    return _apiCallFileUpload(baseUrl + endPoint, "POST", data)
   },
 }
 

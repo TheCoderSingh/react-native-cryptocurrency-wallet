@@ -25,13 +25,6 @@ var reexService = {
     return baseServiceReex.get(`transactions/${id}/${email}/${from}/${count}/`)
   },
 
-  setUsername: (username) => {
-    var data = {
-      username,
-    }
-    return baseServiceReex.post('user/username/set/', data)
-  },
-
   createWallet: (id, email) => {
     var data = {
       id,

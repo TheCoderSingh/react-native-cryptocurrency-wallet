@@ -23,16 +23,14 @@ export default class AmountEntry extends Component {
 
     constructor(props) {
         super(props)
-        const params = this.props.navigation.state.params
         this.state = {
             token: ''
         }
     }
 
     verify = async () => {
-        let responseJson = await AuthService.authVerify(this.state)
+        let responseJson = await AuthService.authMfa({code: this.state.token})
         if (responseJson.status === "success") {
-            const authInfo = responseJson.data
             if (this.props.navigation.state.params.isTwoFactor) {
                 await AsyncStorage.removeItem("token")
                 Auth.login(this.props.navigation, this.props.navigation.state.params.loginInfo)

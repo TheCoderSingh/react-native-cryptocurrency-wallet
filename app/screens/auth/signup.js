@@ -27,19 +27,21 @@ export default class Signup extends Component {
         await AsyncStorage.removeItem('user')
         let data = this.state;
 
-        let responseJson = await AuthService.signup(data)
-        if (responseJson.status === "success") {
-            const loginInfo = responseJson.data
-            if (data.mobile_number) {
-                this.props.navigation.navigate("AuthVerifyMobile", {loginInfo, signupInfo:this.state})
-            } else {
-                Auth.login(this.props.navigation, loginInfo)
-            }
+        if (this.state.password1 !== this.state.password2) {
+            Alert.alert('Error',
+                "Your passwords don't match.",
+                [{text: 'OK'}])
         }
         else {
-            Alert.alert('Error',
-                responseJson.message,
-                [{text: 'OK'}])
+            let responseJson = await AuthService.signup({ email: data.email, password: data.password1 })
+            if (responseJson.status === "success") {
+                Auth.login(this.props.navigation, responseJson.data)
+            }
+            else {
+                Alert.alert('Error',
+                    responseJson.message,
+                    [{text: 'OK'}])
+            }
         }
     }
 

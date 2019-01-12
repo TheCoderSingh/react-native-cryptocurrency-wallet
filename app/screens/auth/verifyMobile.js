@@ -1,8 +1,6 @@
 import React, {Component} from 'react'
 import {View, KeyboardAvoidingView, StyleSheet, AsyncStorage, TouchableHighlight, Text, Alert} from 'react-native'
-import SettingsService from './../../services/settingsService'
 import Auth from './../../util/auth'
-import AuthService from './../../services/authService'
 import TextInput from './../../components/textInput'
 import Colors from './../../config/colors'
 import Header from './../../components/header'

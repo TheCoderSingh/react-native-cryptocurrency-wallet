@@ -1,12 +1,12 @@
 import React, {Component} from 'react'
 import {View, StyleSheet, ListView, Alert, AsyncStorage, TouchableHighlight, Text, RefreshControl} from 'react-native'
-import {NavigationActions} from 'react-navigation'
 import Spinner from 'react-native-loading-spinner-overlay'
 import EmailAddress from './../../../components/emailAddress'
 import ResetNavigation from './../../../util/resetNavigation'
-import SettingsService from './../../../services/settingsService'
 import Colors from './../../../config/colors'
 import Header from './../../../components/header'
+import AuthService from './../../../services/authService'
+import UserInfoService from './../../../services/userInfoService'
 
 export default class Settings extends Component {
     static navigationOptions = {
@@ -31,12 +31,16 @@ export default class Settings extends Component {
     }
 
     getData = async () => {
-        let responseJson = await SettingsService.getAllEmails()
-
-        if (responseJson.status === "success") {
+        let responseJson = await UserInfoService.getUserDetails()
+        if (responseJson.status === 'success') {
             const ds = new ListView.DataSource({rowHasChanged: (r1, r2) => JSON.stringify(r1) !== JSON.stringify(r2)});
-            const data = responseJson.data;
-            //console.log(data)
+            const data = [
+                {
+                    id: responseJson.data.id,
+                    email: responseJson.data.email,
+                    isVerified: responseJson.data.isVerified
+                }
+            ]
             let ids = data.map((obj, index) => index);
             this.setState({
                 dataSource: ds.cloneWithRows(data, ids),
@@ -53,39 +57,13 @@ export default class Settings extends Component {
         ResetNavigation.dispatchUnderDrawer(this.props.navigation, this.state.routeName != null ? 'GetVerified' : 'Settings', 'SettingsEmailAddresses')
     }
 
-    makePrimary = async (id) => {
-        this.setState({
-            loading: true,
-            loadingMessage: 'Updating...',
-        })
-        const body = {"primary": true}
-        let responseJson = await SettingsService.makeEmailPrimary(id, body)
-
-        if (responseJson.status === "success") {
-            this.reload()
-        }
-        else {
-            Alert.alert('Error',
-                responseJson.message,
-                [{text: 'OK'}])
-        }
-    }
-
     verify = async (number) => {
         this.setState({
             loading: true,
             loadingMessage: 'Sending verification code...',
         })
-        const userData = await AsyncStorage.getItem('user')
 
-        const user = JSON.parse(userData)
-
-        const body = {
-            email: number,
-            company: user.company,
-        }
-
-        let responseJson = await SettingsService.resendEmailVerification(body)
+        let responseJson = await AuthService.sendEmailVerification()
 
         if (responseJson.status === "success") {
             Alert.alert(
@@ -97,24 +75,7 @@ export default class Settings extends Component {
         else {
             Alert.alert('Error',
                 responseJson.message,
-                [{text: 'OK'}])
-        }
-    }
-
-    delete = async (id) => {
-        this.setState({
-            loading: true,
-            loadingMessage: 'Deleting...',
-        })
-        let responseJson = await SettingsService.deleteEmail(id)
-
-        if (responseJson.status === "success") {
-            this.reload()
-        }
-        else {
-            Alert.alert('Error',
-                responseJson.message,
-                [{text: 'OK'}])
+                [{text: 'OK', onPress: () => this.setState({loading: false})}])
         }
     }
 
@@ -136,17 +97,10 @@ export default class Settings extends Component {
                                                     onRefresh={this.getData.bind(this)}/>}
                     dataSource={this.state.dataSource}
                     enableEmptySections
-                    renderRow={(rowData) => <EmailAddress email={rowData} makePrimary={this.makePrimary}
-                                                          verify={this.verify} delete={this.delete}
+                    renderRow={(rowData) => <EmailAddress email={rowData}
+                                                          verify={this.verify}
                                                           reload={this.reload}/>}
                 />
-                <TouchableHighlight
-                    style={styles.submit}
-                    onPress={() => this.props.navigation.navigate("AddEmailAddress",{routeName:this.state.routeName})}>
-                    <Text style={{color: 'white', fontSize: 20}}>
-                        Add email address
-                    </Text>
-                </TouchableHighlight>
             </View>
         )
     }
