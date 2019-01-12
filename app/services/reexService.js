@@ -32,6 +32,14 @@ var reexService = {
     }
     return baseServiceReex.post('create', data)
   },
+
+  exportPrivateKey: (code) => {
+    var data = {
+      code
+    }
+
+    return baseServiceReex.post('exportPrivKey', data)
+  },
 }
 
 export default reexService

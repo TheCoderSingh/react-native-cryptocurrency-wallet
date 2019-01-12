@@ -15,7 +15,8 @@ import SettingsSecurity from './../screens/settings/security/security'
 import ChangePassword from './../screens/settings/security/changePassword'
 import TwoFactor from '../screens/settings/security/twoFactor/twoFactor'
 import TwoFactorToken from '../screens/settings/security/twoFactor/twoFactorToken' 
-import AuthVerifySms from '../screens/settings/security/twoFactor/authoVerifySms' 
+import AuthVerifySms from '../screens/settings/security/twoFactor/authoVerifySms'
+import ExportPrivateKey from './../screens/settings/security/exportPrivateKey'
 
 const Stack = {
     Home: {
@@ -65,6 +66,9 @@ const Stack = {
     },
     AuthVerifySms: {
         screen: AuthVerifySms
+    },
+    ExportPrivateKey: {
+        screen: ExportPrivateKey
     }
 }
 

@@ -7,7 +7,7 @@ import {
     KeyboardAvoidingView,
     StyleSheet,
     TouchableHighlight,
-    Text
+    Text,
 } from 'react-native'
 import AuthService from './../../services/authService'
 import UserInfoService from './../../services/userInfoService'
@@ -17,6 +17,7 @@ import TextInput from './../../components/textInput'
 import Colors from './../../config/colors'
 import Constants from './../../config/constants'
 import Header from './../../components/header'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 export default class Login extends Component {
     static navigationOptions = {
@@ -30,6 +31,7 @@ export default class Login extends Component {
             email: '',
             company: Constants.company_id,
             password: '',
+            loading: false,
         }
     }
 
@@ -41,10 +43,12 @@ export default class Login extends Component {
             }
             return token
         } catch (error) {
+            Auth.logout(this.props.navigation)
         }
     }
 
     login = async () => {
+        this.setState({ loading: true })
         var body = {
             "email": this.state.email,
             "password": this.state.password,
@@ -57,9 +61,11 @@ export default class Login extends Component {
             if (userDetails.status === "success") {
                 const authInfo = userDetails.data
                 if (authInfo.isMfaEnabled === true) {
+                    this.setState({ loading: false })
                     this.props.navigation.navigate("AuthVerifySms", {loginInfo:loginInfo,isTwoFactor:true})
                 }
                 else {
+                    this.setState({ loading: false })
                     Auth.login(this.props.navigation, loginInfo)
                 }
             }
@@ -74,6 +80,7 @@ export default class Login extends Component {
                 responseJson.message,
                 [{text: 'OK'}])
         }
+        this.setState({ loading: false })
     }
 
     render() {
@@ -85,6 +92,11 @@ export default class Login extends Component {
                     title="Login"
                 />
                 <View style={styles.mainContainer}>
+                    <Spinner
+                        visible={this.state.loading}
+                        textContent=""
+                        textStyle={{color: '#FFF'}}
+                    />
                     <KeyboardAvoidingView style={styles.container} behavior={'padding'} keyboardVerticalOffset={85}>
                         <ScrollView keyboardDismissMode={'interactive'}>
                             <TextInput

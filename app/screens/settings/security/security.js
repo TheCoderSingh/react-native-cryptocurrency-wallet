@@ -20,8 +20,8 @@ export default class Security extends Component {
           back
           title="Security"
         />
-        {/* <Option name="Change password" gotoAddress="ChangePassword" goTo={this.goTo} /> */}       
         <Option name="Two factor" gotoAddress="TwoFactor" goTo={this.goTo} />
+        <Option name="View Private Key" gotoAddress="ExportPrivateKey" goTo={this.goTo} />
       </View>
     )
   }
