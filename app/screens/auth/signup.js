@@ -35,7 +35,11 @@ export default class Signup extends Component {
         else {
             let responseJson = await AuthService.signup({ email: data.email, password: data.password1 })
             if (responseJson.status === "success") {
-                Auth.login(this.props.navigation, responseJson.data)
+                Alert.alert('Success',
+                    "Please check your inbox and verify your email.",
+                    [{ text: 'OK', onPress: () => { 
+                        Auth.logout(this.props.navigation)
+                    }}])
             }
             else {
                 Alert.alert('Error',

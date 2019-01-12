@@ -74,13 +74,16 @@ export default class Transactions extends Component {
         })
         let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
         let user = JSON.parse(await AsyncStorage.getItem('user'))
-        if (wallet === null) {
-            wallet = await ReexService.getWallet(user.id, user.email)
-            await AsyncStorage.removeItem('wallet')
-            await AsyncStorage.setItem('wallet', JSON.stringify(wallet))
+
+        if (user !== null) {
+            if (wallet === null) {
+                wallet = await ReexService.getWallet(user.id, user.email)
+                await AsyncStorage.removeItem('wallet')
+                await AsyncStorage.setItem('wallet', JSON.stringify(wallet))
+            }
+            let responseJson = await ReexService.getTransactions(wallet.walletId, user.email, 0, 20)
+            this.setData(responseJson)
         }
-        let responseJson = await ReexService.getTransactions(wallet.walletId, user.email, 0, 20)
-        this.setData(responseJson)
     }
 
     handleRefresh() {

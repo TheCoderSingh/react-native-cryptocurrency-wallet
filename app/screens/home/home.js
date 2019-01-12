@@ -59,23 +59,23 @@ export default class Home extends Component {
     }
 
     getUserInfo = async () => {
-        let responseJson = await UserInfoService.getUserDetails()
-        if (responseJson.status === "success") {
-            await AsyncStorage.removeItem('user')
-            await AsyncStorage.setItem('user', JSON.stringify(responseJson.data))
-            const token = await AsyncStorage.getItem('token')
-            if (token === null) {
+        const token = await AsyncStorage.getItem('token')
+        
+        if(token !== null) {
+            let responseJson = await UserInfoService.getUserDetails()
+            if (responseJson.status === "success") {
+                await AsyncStorage.removeItem('user')
+                await AsyncStorage.setItem('user', JSON.stringify(responseJson.data))
+            }
+            else {
                 await this.logout()
             }
-        }
-        else {
-            await this.logout()
         }
     }
 
     getBalanceInfo = async () => {
         let user = JSON.parse(await AsyncStorage.getItem('user'))
-        if (!user.isVerified) {
+        if (user === null || !user.isVerified) {
             return
         }
         else {
@@ -93,13 +93,13 @@ export default class Home extends Component {
                     this.logout()
                 }
             }
-        }
+        }        
     }
 
     getInitialisedWallet = async () => {
         let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
         let user = JSON.parse(await AsyncStorage.getItem('user'))
-        if (!user.isVerified) {
+        if (user === null || !user.isVerified) {
             return
         }
         else if (wallet === null) {
