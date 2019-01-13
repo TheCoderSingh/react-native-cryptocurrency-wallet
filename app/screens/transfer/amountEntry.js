@@ -16,6 +16,7 @@ import TextInput from './../../components/textInput'
 import Colors from './../../config/colors'
 import Header from './../../components/header'
 import Big from 'big.js'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 export default class AmountEntry extends Component {
     static navigationOptions = {
@@ -30,24 +31,35 @@ export default class AmountEntry extends Component {
             reference: params.reference,
             amount: 0,
             balance: 0,
-            disabled: false
+            disabled: false,
+            loading: false
         }
     }
 
     transferConfirmed = async (amount) => {
-        let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
-        let user = JSON.parse(await AsyncStorage.getItem('user'))
-        let responseJson = await reexService.sendMoney(wallet.walletId, user.email, user.id, this.state.reference, amount)
-
-        if (responseJson.status === 200) {
-            Alert.alert('Success',
-                "Transaction successful",
-                [{ text: 'OK', onPress: () => ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home") }])
+        
+        try
+        {
+            this.setState({ loading: true })
+            let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+            let user = JSON.parse(await AsyncStorage.getItem('user'))
+            let responseJson = await reexService.sendMoney(wallet.walletId, user.email, user.id, this.state.reference, amount)
+            let result = await responseJson.json()
+            if (responseJson.status === 200) {
+                Alert.alert('Success',
+                    "Transaction successful",
+                    [{ text: 'OK', onPress: () => ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home") }])
+            }
+            else {
+                Alert.alert('Error',
+                    result.message,
+                    [{ text: 'OK' }])
+            }
+            this.setState({ loading: false })
         }
-        else {
-            Alert.alert('Error',
-                "Transaction failed. Please verify your address and amount.",
-                [{ text: 'OK' }])
+        catch (error)
+        {
+            this.setState({ loading: false })
         }
     }
 
@@ -114,6 +126,11 @@ export default class AmountEntry extends Component {
     render() {
         return (
             <View style={{flex: 1}}>
+                <Spinner
+                    visible={this.state.loading}
+                    textContent=""
+                    textStyle={{color: '#FFF'}}
+                />
                 <Header
                     navigation={this.props.navigation}
                     back

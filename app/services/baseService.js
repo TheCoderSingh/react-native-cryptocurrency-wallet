@@ -29,16 +29,12 @@ let _apiCallWithData = async (url, method, data) => {
     })
     if (response.status === 403 || response.status === 401) {
       await AsyncStorage.removeItem("token")
-      return { status: "error" }
+      return { "status": "error", "message": "Your session expired. Please login again." }
     }
     let responseJson = await response.json()
     return responseJson
   } catch (error) {
-    Alert.alert(
-      "Error",
-      JSON.stringify(error),
-      [{ text: 'OK' }]
-    )
+    return { status: "error" }
   }
 }
 
@@ -53,15 +49,10 @@ let _apiCallWithoutData = async (url, method) => {
     let responseJson = await response.json()
     if (response.status === 403 || response.status === 401) {
       await AsyncStorage.removeItem("token")
-      return { status: "error" }
+      return { "status": "error", "message": "Your session expired. Please login again." }
     }
     return responseJson
   } catch (error) {
-    Alert.alert(
-      "Error",
-      JSON.stringify(error),
-      [{ text: 'OK' }]
-    )
     return { status: "error" }
   }
 }

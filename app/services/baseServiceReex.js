@@ -32,16 +32,12 @@ let _apiCallWithData = async (url, method, data) => {
         await AsyncStorage.removeItem("user")
         await AsyncStorage.removeItem("wallet")
 
-        return { "status": "error" }
+        return { "status": "error", "message": "Your session expired. Please login again." }
     }
     return response
 
   } catch (error) {
-    Alert.alert(
-      "Error",
-      JSON.stringify(error),
-      [{ text: 'OK' }]
-    )
+    return { status: "error" }
   }
 }
 
@@ -58,6 +54,8 @@ let _apiCallWithoutData = async (url, method) => {
         await AsyncStorage.removeItem("token")
         await AsyncStorage.removeItem("user")
         await AsyncStorage.removeItem("wallet")
+
+        return { "status": "error", "message": "Your session expired. Please login again." }
     }
     return responseJson
   } catch (error) {
