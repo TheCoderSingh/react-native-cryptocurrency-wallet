@@ -1,8 +1,6 @@
-# Luuun wallet | React Native
+# ReeCore Reex wallet | React Native
 
-Try out the demo on Android or iOS here:
-https://expo.io/@luuun/luuun
-(first install Expo on your phone)
+![](ReeCoreReexWallet.gif)
 
 ## Prerequisites
 
@@ -17,7 +15,6 @@ https://expo.io/@luuun/luuun
 * go to `wallet-react-native` directory
 * run `npm install` to install the dependencies
 * follow one of the following steps
-
 
 ** *before this make sure ports 19000 and 19001 are open*
 
