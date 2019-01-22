@@ -1,12 +1,12 @@
 # ReeCore Reex wallet | React Native
 
-![](ReeCoreReexWallet.gif)
-
 ## Prerequisites
 
 * NodeJs
 * Android/IOS emulator
 * Install Expo in the emulator
+
+![](ReecoreReexWallet.gif)
 
 ## Getting started
 
