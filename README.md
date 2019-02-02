@@ -1,12 +1,22 @@
 # ReeCore Reex wallet | React Native
 
+| Sign Up  | First Login |
+| ------------- | ------------- |
+| ![](https://danehollenbach.com/reecore/Reecore_SignUp_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_LoginNo2FA_s.gif)  |
+
+| Enable 2FA  | 2FA Login |
+| ------------- | ------------- |
+| ![](https://danehollenbach.com/reecore/Reecore_Enable2FA_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_Login2FA_s.gif)  |
+
+| Export Priv Key  | Receive |
+| ------------- | ------------- |
+| ![](https://danehollenbach.com/reecore/Reecore_ExportPrivKey_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_Receive_s.gif)  |
+
 ## Prerequisites
 
 * NodeJs
 * Android/IOS emulator
 * Install Expo in the emulator
-
-![](ReecoreReexWallet.gif)
 
 ## Getting started
 
