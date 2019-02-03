@@ -6,13 +6,13 @@ import {
     FlatList,
     ScrollView,
     RefreshControl,
+    AsyncStorage,
 } from 'react-native'
 import {ListItem} from "react-native-elements"
-import TransactionService from './../../services/transactionService'
 import UserInfoService from './../../services/userInfoService'
-import SettingsService from './../../services/settingsService'
 import Colors from './../../config/colors'
 import Big from 'big.js'
+import ReexService from '../../services/reexService'
 
 export default class Transactions extends Component {
     constructor(props) {
@@ -30,32 +30,24 @@ export default class Transactions extends Component {
         };
     }
 
-    componentDidMount() {
-        this.getData()
+    async componentDidMount() {
+        await this.getData()
     }
 
     setData = async (responseJson) => {
         if (responseJson.status === "success") {
-            const data = this.state.data.concat(responseJson.data.results)
+            const data = this.state.data.concat(responseJson.data)
             this.setState({
                 data,
                 noTransaction: false,
-                nextUrl: responseJson.data.next,
+                nextUrl: 1,
             })
-        }
-        else {
-            this.props.logout()
         }
 
         if (this.state.data.length === 0) {
-            let responseJson = await UserInfoService.getCompany()
-            let responseEmails = await SettingsService.getAllEmails()
-            if (responseJson.status === "success" && responseEmails.status === "success") {
-                let emails = responseEmails.data
-                let verified = emails.filter(function (node) {
-                    return node.verified === true
-                })
-                if (verified.length !== 0) {
+            let responseJson = await UserInfoService.getUserDetails()
+            if (responseJson.status === "success") {
+                if (responseJson.data.isVerified) {
                     this.setState({
                         company: responseJson.data,
                         noTransaction: true,
@@ -80,8 +72,18 @@ export default class Transactions extends Component {
         this.setState({
             data: [],
         })
-        let responseJson = await TransactionService.getAllTransactions()
-        this.setData(responseJson)
+        let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+        let user = JSON.parse(await AsyncStorage.getItem('user'))
+
+        if (user !== null) {
+            if (wallet === null) {
+                wallet = await ReexService.getWallet(user.id, user.email)
+                await AsyncStorage.removeItem('wallet')
+                await AsyncStorage.setItem('wallet', JSON.stringify(wallet))
+            }
+            let responseJson = await ReexService.getTransactions(wallet.walletId, user.email, 0, 20)
+            this.setData(responseJson)
+        }
     }
 
     handleRefresh() {
@@ -96,25 +98,15 @@ export default class Transactions extends Component {
 
 
     handleLoadMore = async () => {
-        if (this.state.refreshing !== true && this.state.loading !== true && this.state.nextUrl) {
-            this.setState({'loading': true})
-            let responseJson = await TransactionService.getNextTransactions(this.state.nextUrl)
-            this.setData(responseJson)
-            this.setState({'loading': false})
-        }
     }
 
     getAmount = (amount, divisibility) => {
       amount = new Big(amount)
-      for (let i = 0; i < divisibility; i++) {
-        amount = amount.div(10)
-      }
-
-        return amount.toFixed(8).replace(/\.?0+$/, "")
+      return amount.toFixed(8).replace(/\.?0+$/, "")
     }
 
     render() {
-        if (this.state.noTransaction) {
+        if (!this.state.verified) {
             return (
                 <View style={{flex: 1, backgroundColor: Colors.lightgray,paddingHorizontal:10}}>
                     <ScrollView
@@ -131,7 +123,36 @@ export default class Transactions extends Component {
                                 Welcome to {this.state.company.name}
                             </Text>
                             <Text style={{paddingTop: 15, fontSize: 18, fontWeight: 'normal', color: Colors.black}}>
-                                {this.state.verified ? null : "Please verify your email address to redeem any unclaimed transactions. "}
+                                {this.state.verified ? 
+                                    null : 
+                                    "You must verify your email address before you can view any transactions or use your wallet. " +
+                                    "Navigate to Settings -> Email Addresses -> Click 'Verify'. "}
+                                Pull to refresh your balance.
+                            </Text>
+                        </View>
+                    </ScrollView>
+                    
+                </View>
+            )
+        }
+        else if (this.state.noTransaction) {
+            return (
+                <View style={{flex: 1, backgroundColor: Colors.lightgray,paddingHorizontal:10}}>
+                    <ScrollView
+                        refreshControl={
+                            <RefreshControl
+                                refreshing={this.state.refreshing}
+                                onRefresh={this.handleRefresh.bind(this)}
+                            />
+                        }>
+                        <View style={{
+                            marginTop: 10, flexDirection: 'column', backgroundColor: 'white', padding: 20
+                        }}>
+                            <Text style={{fontSize: 24, fontWeight: 'normal', color: Colors.black}}>
+                                Welcome to {this.state.company.name}
+                            </Text>
+                            <Text style={{paddingTop: 15, fontSize: 18, fontWeight: 'normal', color: Colors.black}}>
+                                {this.state.noTransaction ? "You currently have no transactions. " : null}
                                 Pull to refresh your balance.
                             </Text>
                         </View>
@@ -147,25 +168,23 @@ export default class Transactions extends Component {
                         data={this.state.data}
                         renderItem={({item}) => (
                             <ListItem
-                                avatar={item.user.profile || 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSgmT5tM-IGcFDpqZ87p9zKGaWQuzpvAcDKfOTPYfx5A9zOmbTh8RMMFg'}
-                                title={item.tx_type === 'credit' ? "Received" : "Sent"}
-                                subtitle={moment(item.created).fromNow()}
-                                rightTitle={`${item.currency.symbol}${this.getAmount(item.amount, item.currency.divisibility)}`}
-                                rightTitleStyle={{'color': '#bdc6cf'}}
+                                avatar={this.getAmount(item.amount, false) > 0 ? 'https://www.danehollenbach.com/assets/images/transaction-type-received.png' : 'https://www.danehollenbach.com/assets/images/transaction-type-sent.png'}
+                                title={this.getAmount(item.amount, false) > 0 ? "Received" : "Sent"}
+                                subtitle={moment((new Date(item.timereceived*1000))).format('lll')}
+                                rightTitle={`${this.getAmount(item.amount, false)}`}
+                                rightTitleStyle={{'color': '#000000'}}
                                 containerStyle={{paddingRight: 20}}
                                 hideChevron
                                 roundAvatar
                                 onPress={() => {
-                                    this.props.showDialog(item)
+                                    this.props.navigation.navigate("TransactionDetails", {item: item})
+                                    //this.props.showDialog(item)
                                 }}
-                                //containerStyle={{'backgroundColor':'#FAFBFC'}}
                             />
                         )}
-                        keyExtractor={tx => tx.id}
+                        keyExtractor={tx => tx.key}
                         onRefresh={this.handleRefresh.bind(this)}
                         refreshing={this.state.refreshing}
-                        onEndReached={this.handleLoadMore.bind(this)}
-                        onEndReachedThreshold={50}
                     />
                 </View>
             )

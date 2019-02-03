@@ -24,27 +24,20 @@ export default class DrawerHeader extends Component {
   }
 
   render() {
-    //this.getUserInfo()
+    //await this.getUserInfo()
     return (
       <View style={styles.row}>
         <TouchableHighlight
           underlayColor={Colors.darkblue}
-          style={styles.button}
-          onPress={() => ResetNavigation.dispatchUnderDrawer(this.props.navigation, "Settings", 'SettingsPersonalDetails')}>
-          {this.state.userInfo.profile ?
-            <Image
+          style={styles.button}>
+          <Image
+              source={require('./../../assets/icons/reecore.png')}
               style={styles.stretch}
-              source={{ uri: this.state.userInfo.profile, cache: 'only-if-cached' }}
-            /> :
-            <Image
-              source={require('./../../assets/icons/profile_1.png')}
-              style={styles.stretch}
-            />
-          }
+          />
         </TouchableHighlight>
         <View style={styles.col}>
           <Text style={styles.nameText}>
-            {(this.state.userInfo.first_name || '') + ' ' + (this.state.userInfo.last_name || '')}
+            Reecore Reex Wallet
           </Text>
           <Text style={styles.emailText}>
             {this.state.userInfo.email || ''}

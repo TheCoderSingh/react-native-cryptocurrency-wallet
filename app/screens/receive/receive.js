@@ -1,10 +1,8 @@
 import React, {Component} from 'react'
-import {View, Text, StyleSheet, Image, Clipboard, TouchableHighlight, Alert} from 'react-native'
+import {View, Text, StyleSheet, Image, Clipboard, TouchableHighlight, Alert, AsyncStorage} from 'react-native'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-import stellarService from './../../services/stellarService'
 import Colors from './../../config/colors'
 import Header from './../../components/header'
-import Modal from 'react-native-modal'
 
 export default class Receive extends Component {
     static navigationOptions = {
@@ -18,7 +16,6 @@ export default class Receive extends Component {
             cryptoAddress: {
                 qrCode: '',
                 address: '',
-                memo: '',
                 reference: '',
                 modalVisible: false,
             },
@@ -26,25 +23,16 @@ export default class Receive extends Component {
     }
 
     async componentWillMount() {
-        await this.popup()
         await this.getCryptoAddress()
     }
 
-    popup = async () => {
-        this.setState({
-            modalVisible: true
-        })
-    }
     getCryptoAddress = async () => {
-        const cryptoAddressResponse = await stellarService.getAddress()
-        //console.log(cryptoAddressResponse)
-        const {cryptoAddress} = this.state
-        cryptoAddress.qrCode = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' + cryptoAddressResponse.reference + '&choe=UTF-8'
-        cryptoAddress.address = cryptoAddressResponse.details.address
-        cryptoAddress.memo = cryptoAddressResponse.details.memo
-        cryptoAddress.reference = cryptoAddressResponse.reference
+        const wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
 
-        console.log(cryptoAddress)
+        const {cryptoAddress} = this.state
+        cryptoAddress.qrCode = 'https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=' + wallet.addresses[0].myAddress + '&choe=UTF-8'
+        cryptoAddress.address = wallet.addresses[0].myAddress
+
         this.setState({cryptoAddress})
     }
 
@@ -63,30 +51,7 @@ export default class Receive extends Component {
                     style={{width: 300, height: 300}}
                     source={{uri: this.state.cryptoAddress.qrCode}}
                 />
-                <Text style={styles.text}>
-                    {this.state.cryptoAddress.reference}
-                </Text>
                 <View style={styles.boxed}>
-                    <View style={styles.memoIcon}>
-                        <Text style={styles.memoText}>
-                            Memo: {this.state.cryptoAddress.memo}
-                        </Text>
-                        <TouchableHighlight
-                            underlayColor={'white'}
-                            onPress={() => {
-                                Clipboard.setString(this.state.cryptoAddress.memo)
-                                Alert.alert(
-                                    null,
-                                    'Copied',
-                                )
-                            }}>
-                            <Icon
-                                name="content-copy"
-                                size={30}
-                                color={Colors.black}
-                            />
-                        </TouchableHighlight>
-                    </View>
                     <View style={styles.memoIcon}>
                         <Text style={[styles.memoText, {fontSize: 10}]}>
                             {this.state.cryptoAddress.address}
@@ -108,53 +73,6 @@ export default class Receive extends Component {
                         </TouchableHighlight>
                     </View>
                 </View>
-                <Modal
-                    animationInTiming={500}
-                    animationOutTiming={500}
-                    backdropTransitionOutTiming={500}
-                    backdropTransitionInTiming={500}
-                    backdropColor="black"
-                    onBackdropPress={() => this.setState({modalVisible: false})}
-                    isVisible={this.state.modalVisible}>
-                    <View style={styles.modal}>
-                        <View style={styles.bottomModal}>
-                            <View style={[styles.button, {borderBottomWidth: 1, borderBottomColor: Colors.lightgray}]}>
-                                <Text style={{color: Colors.black, fontSize: 22, fontWeight: 'bold'}}>
-                                    Important Note
-                                </Text>
-                            </View>
-                            <Text style={{color: Colors.black, paddingVertical: 20}}>
-                                Please include a memo text when funding your Luuun account.
-                                Your memo is <Text
-                                style={{fontWeight: 'bold'}}>{this.state.cryptoAddress.reference.replace("*luuun.com", "")}.{"\n"}{"\n"}</Text>
-
-                                <Text style={{color: Colors.black}}>
-                                    If you do not specify a memo text when funding your account,
-                                    we will put a 72h hold on any deposits. If you do not specify a memo text when
-                                    funding your account,
-                                    our system will not be able to detect your transaction and you will need to contact
-                                    support.{"\n"}{"\n"}
-                                </Text>
-                                <Text style={{color: Colors.black}}>
-                                    Luuun supports the Stellar federation address protocol.
-                                    If your client supports this protocol too, you can send
-                                    lumens to {this.state.cryptoAddress.reference.replace("*luuun.com", "")}*<Text
-                                    style={{color: Colors.lightblue}}>luuun.com.</Text>{"\n"}{"\n"}
-                                </Text>
-                                Happy Luuuning!
-                            </Text>
-                            <TouchableHighlight
-                                style={[styles.button]}
-                                onPress={() => {
-                                    this.setState({modalVisible: false})
-                                }}>
-                                <Text style={styles.buttonText}>
-                                    OK
-                                </Text>
-                            </TouchableHighlight>
-                        </View>
-                    </View>
-                </Modal>
             </View>
         )
     }

@@ -1,15 +1,13 @@
 import React, {Component} from 'react'
 import {View, KeyboardAvoidingView, StyleSheet, AsyncStorage, TouchableHighlight, Text, Alert} from 'react-native'
-import SettingsService from './../../services/settingsService'
 import Auth from './../../util/auth'
-import AuthService from './../../services/authService'
 import TextInput from './../../components/textInput'
 import Colors from './../../config/colors'
 import Header from './../../components/header'
 
 export default class AmountEntry extends Component {
     static navigationOptions = {
-        title: 'Verify mobile number',
+        title: 'Verify with mfa app',
     }
 
     constructor(props) {
@@ -78,7 +76,7 @@ export default class AmountEntry extends Component {
             <View style={{flex: 1}}>
                 <Header
                     navigation={this.props.navigation}
-                    title="Verify mobile number"
+                    title="Verify with mfa app"
                 />
                 <KeyboardAvoidingView style={styles.container} behavior={'padding'}>
                     <View style={{flex: 1}}>
@@ -134,7 +132,7 @@ const styles = StyleSheet.create({
     submit: {
         flex: 1,
         marginBottom: 10,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         borderRadius: 25,
         height: 50,
         alignItems: 'center',
@@ -143,7 +141,7 @@ const styles = StyleSheet.create({
     resend: {
         marginHorizontal: 25,
         marginBottom: 10,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         borderRadius: 25,
         height: 50,
         alignItems: 'center',

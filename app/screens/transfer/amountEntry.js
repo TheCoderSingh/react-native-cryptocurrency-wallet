@@ -10,50 +10,61 @@ import {
     Alert,
     TouchableWithoutFeedback
 } from 'react-native'
-import stellarService from './../../services/stellarService'
+import reexService from '../../services/reexService'
 import ResetNavigation from './../../util/resetNavigation'
 import TextInput from './../../components/textInput'
-import UserInfoService from './../../services/userInfoService'
 import Colors from './../../config/colors'
 import Header from './../../components/header'
 import Big from 'big.js'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 export default class AmountEntry extends Component {
     static navigationOptions = {
-        title: 'Send money',
+        title: 'Send Reex',
     }
 
 
     constructor(props) {
         super(props)
         const params = this.props.navigation.state.params
-        console.log(params)
         this.state = {
             reference: params.reference,
             amount: 0,
-            memo: params.memo,
             balance: 0,
-            note: '',
-            disabled: false
+            disabled: false,
+            loading: false
         }
     }
 
     transferConfirmed = async (amount) => {
-        let responseJson = await stellarService.sendMoney(amount, this.state.memo, this.state.reference, 'XLM', 'default')
-        if (responseJson.status === 201) {
-            Alert.alert('Success',
-                "Transaction successful",
-                [{ text: 'OK', onPress: () => ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home") }])
+        
+        try
+        {
+            this.setState({ loading: true })
+            let wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+            let user = JSON.parse(await AsyncStorage.getItem('user'))
+            let responseJson = await reexService.sendMoney(wallet.walletId, user.email, user.id, this.state.reference, amount)
+            let result = await responseJson.json()
+            if (responseJson.status === 200) {
+                Alert.alert('Success',
+                    "Transaction successful",
+                    [{ text: 'OK', onPress: () => ResetNavigation.dispatchToSingleRoute(this.props.navigation, "Home") }])
+            }
+            else {
+                Alert.alert('Error',
+                    result.message,
+                    [{ text: 'OK' }])
+            }
+            this.setState({ loading: false })
         }
-        else {
-            Alert.alert('Error',
-                "Transaction failed",
-                [{ text: 'OK' }])
+        catch (error)
+        {
+            this.setState({ loading: false })
         }
     }
 
-    componentWillMount(){
-        this.getBalanceInfo()
+    async componentWillMount(){
+        await this.getBalanceInfo()
     }
 
     send = async () => {
@@ -68,12 +79,9 @@ export default class AmountEntry extends Component {
             const data = await AsyncStorage.getItem('currency')
             const currency = JSON.parse(data)
             let amount = new Big(this.state.amount)
-            for (let i = 0; i < currency.divisibility; i++) {
-              amount = amount.times(10)
-            }
             Alert.alert(
                 'Are you sure?',
-                'Send ' + currency.symbol + this.state.amount + ' to ' + this.state.reference,
+                'Send ' + this.state.amount + ' - ' + currency.symbol + ' to ' + this.state.reference,
                 [
                     {text: 'Yes', onPress: () => this.transferConfirmed(amount)},
                     {
@@ -86,17 +94,13 @@ export default class AmountEntry extends Component {
         }
     }
     setBalance = (balance, divisibility) => {
-        for (let i = 0; i < divisibility; i++) {
-            balance = balance / 10
-        }
-
         return balance
     }
     getBalanceInfo = async () => {
-        let responseJson = await UserInfoService.getActiveAccount()
+        const wallet = JSON.parse(await AsyncStorage.getItem('wallet'))
+        let responseJson = await reexService.getBalance(wallet.walletId, wallet.email)
         if (responseJson.status === "success") {
-            let account = responseJson.data.results[0].currencies[0]
-            this.setState({ balance: this.setBalance(account.available_balance, account.currency.divisibility) })
+            this.setState({ balance: responseJson.available_balance})
         }
     }
 
@@ -122,10 +126,15 @@ export default class AmountEntry extends Component {
     render() {
         return (
             <View style={{flex: 1}}>
+                <Spinner
+                    visible={this.state.loading}
+                    textContent=""
+                    textStyle={{color: '#FFF'}}
+                />
                 <Header
                     navigation={this.props.navigation}
                     back
-                    title="Send money"
+                    title="Send Reex"
                 />
                 <KeyboardAvoidingView style={styles.container} behavior={'padding'}>
                     <ScrollView keyboardDismissMode={'interactive'}>
@@ -136,15 +145,6 @@ export default class AmountEntry extends Component {
                             keyboardType="numeric"
                             underlineColorAndroid="white"
                             onChangeText={this.amountChanged}
-                        />
-                        <TextInput
-                            title="Note"
-                            placeholder="Enter note here"
-                            autoCapitalize="none"
-                            placeholderTextColor="lightgray"
-                            multiline={true}
-                            underlineColorAndroid="white"
-                            onChangeText={(note) => this.setState({note})}
                         />
                     </ScrollView>
                     {   this.state.disabled ?
@@ -183,7 +183,7 @@ const styles = StyleSheet.create({
         marginBottom: 10,
         borderRadius: 25,
         height: 50,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         alignItems: 'center',
         justifyContent: 'center',
     },

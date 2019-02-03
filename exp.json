@@ -1,11 +1,11 @@
 {
-  "name": "luuun",
-  "description": "Digital wallet for storing lumens and digital currencies on the stellar network",
-  "slug": "luuun",
+  "name": "Reecore",
+  "description": "Reecore is a peer-to-peer decentralized digital currency for ordinary people, easy to use and acquire.",
+  "slug": "Reecore",
   "privacy": "public",
-  "sdkVersion": "24.0.0",
+  "sdkVersion": "26.0.0",
   "version": "1.0.4",
-  "icon": "./assets/icons/leap.png",
+  "icon": "./assets/icons/reecore.png",
   "orientation": "portrait",
   "primaryColor": "#cccccc",
   "loading": {
@@ -20,10 +20,10 @@
   },
   "ios": {
     "supportsTablet": true,
-    "bundleIdentifier": "com.luuun"
+    "bundleIdentifier": "com.reecore.reex"
   },
   "android": {
     "versionCode": 6,
-    "package": "com.luuun"
+    "package": "com.reecore.reex"
   }
 }

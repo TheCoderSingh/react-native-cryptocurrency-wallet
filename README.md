@@ -1,8 +1,16 @@
-# Reex wallet | React Native
+# ReeCore Reex wallet | React Native
 
-Try out the demo on Android or iOS here:
-https://expo.io/@reex/reex
-(first install Expo on your phone)
+| Sign Up  | First Login |
+| ------------- | ------------- |
+| ![](https://danehollenbach.com/reecore/Reecore_SignUp_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_LoginNo2FA_s.gif)  |
+
+| Enable 2FA  | 2FA Login |
+| ------------- | ------------- |
+| ![](https://danehollenbach.com/reecore/Reecore_Enable2FA_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_Login2FA_s.gif)  |
+
+| Export Priv Key  | Receive |
+| ------------- | ------------- |
+| ![](https://danehollenbach.com/reecore/Reecore_ExportPrivKey_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_Receive_s.gif)  |
 
 ## Prerequisites
 
@@ -17,7 +25,6 @@ https://expo.io/@reex/reex
 * go to `wallet-react-native` directory
 * run `npm install` to install the dependencies
 * follow one of the following steps
-
 
 ** *before this make sure ports 19000 and 19001 are open*
 

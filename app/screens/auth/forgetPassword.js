@@ -25,8 +25,7 @@ export default class ForgetPassword extends Component {
 
     sendEmail = async () => {
         var body = {
-            "user": this.state.email,
-            "company": this.state.company,
+            "email": this.state.email
         }
         let responseJson = await AuthService.forgetPassword(body)
         if (responseJson.status === "success") {
@@ -97,7 +96,7 @@ const styles = StyleSheet.create({
         height: 50,
         marginHorizontal:20,
         borderRadius: 25,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         alignItems: 'center',
         justifyContent: 'center',
     },

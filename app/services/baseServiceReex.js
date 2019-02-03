@@ -1,7 +1,7 @@
 import { AsyncStorage, Alert } from 'react-native'
 
-import Constants from './../config/constants'
-const baseUrl = Constants.stellar_service_url
+import Constants from '../config/constants'
+const baseUrl = Constants.reex_service_url
 
 let getHeaders = async () => {
   const token = await AsyncStorage.getItem('token')
@@ -20,7 +20,6 @@ let getHeaders = async () => {
 
 let _apiCallWithData = async (url, method, data) => {
   try {
-    //console.log(data)
     let headers = await getHeaders()
     let response = await fetch(url, {
       method,
@@ -31,17 +30,14 @@ let _apiCallWithData = async (url, method, data) => {
     if (response.status === 403 || response.status === 401) {
         await AsyncStorage.removeItem("token")
         await AsyncStorage.removeItem("user")
+        await AsyncStorage.removeItem("wallet")
 
-        return { "status": "error" }
+        return { "status": "error", "message": "Your session expired. Please login again." }
     }
     return response
 
   } catch (error) {
-    Alert.alert(
-      "Error",
-      JSON.stringify(error),
-      [{ text: 'OK' }]
-    )
+    return { status: "error" }
   }
 }
 
@@ -53,38 +49,17 @@ let _apiCallWithoutData = async (url, method) => {
       headers,
       credentials: 'omit',
     })
-    //console.log(response)
     let responseJson = await response.json()
     if (response.status === 403 || response.status === 401) {
         await AsyncStorage.removeItem("token")
         await AsyncStorage.removeItem("user")
+        await AsyncStorage.removeItem("wallet")
+
+        return { "status": "error", "message": "Your session expired. Please login again." }
     }
     return responseJson
   } catch (error) {
     return { "status": "error" }
-  }
-}
-
-let _apiCallFileUpload = async (url, method, data) => {
-  try {
-    const token = await AsyncStorage.getItem('token')
-    let headers = {
-      'Content-Type': 'multipart/form-data',
-      'Authorization': 'Token ' + token,
-    }
-    let response = await fetch(url, {
-      method,
-      headers,
-      body: data,
-    })
-    let responseJson = await response.json()
-    return responseJson
-  } catch (error) {
-    Alert.alert(
-      "Error",
-      JSON.stringify(error),
-      [{ text: 'OK' }]
-    )
   }
 }
 
@@ -112,14 +87,6 @@ const baseService = {
 
   delete: (endPoint) => {
     return _apiCallWithoutData(baseUrl + endPoint, "DELETE", {})
-  },
-
-  fileUpload: (endPoint, data) => {
-    return _apiCallFileUpload(baseUrl + endPoint, "PATCH", data)
-  },
-
-  documentUpload: (endPoint, data) => {
-    return _apiCallFileUpload(baseUrl + endPoint, "POST", data)
   },
 }
 

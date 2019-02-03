@@ -34,7 +34,7 @@ export default class Withdraw extends Component {
         </View>
         <View style={styles.right}>
           <Text style={{ fontSize: 20, fontWeight: 'normal', color: Colors.black }}>
-            {this.props.data.currency.symbol + " " + this.getAmount(this.props.data.amount, this.props.data.currency.divisibility)}
+            {"REEX " + this.getAmount(this.props.data.amount, false)}
           </Text>
           <Text style={{ fontSize: 14, color: Colors.black }}>
             {Date.getDateFromMiliseconds(this.props.data.updated)} | {this.props.data.status}

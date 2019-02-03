@@ -5,7 +5,7 @@ import Colors from './../config/colors'
 export default class Account extends Component {
     constructor(props) {
         super(props);
-        const color = this.props.data.active === true ? Colors.lightgray : Colors.green
+        const color = this.props.data.active === true ? Colors.lightgray : Colors.blue
         this.state = {
             balance: 0,
             color,
@@ -13,14 +13,10 @@ export default class Account extends Component {
     }
 
     componentWillMount() {
-        this.setBalance(this.props.data.balance, this.props.data.currency.divisibility)
+        this.setBalance(this.props.data.balance, false)
     }
 
     setBalance = (balance, divisibility) => {
-        for (let i = 0; i < divisibility; i++) {
-            balance = balance / 10
-        }
-
         this.setState({balance})
     }
 
@@ -41,7 +37,7 @@ export default class Account extends Component {
                                 {this.props.data.currency.code}
                             </Text>
                             <Text style={{fontSize: 13, color: Colors.black}}>
-                                {this.props.data.currency.symbol + ' ' + this.state.balance}
+                                {'REEX ' + this.state.balance}
                             </Text>
                         </View>
                         <View style={styles.buttonView}>

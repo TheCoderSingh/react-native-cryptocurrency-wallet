@@ -2,48 +2,44 @@ import BaseService from './baseService'
 
 var authService = {
     login: (data) => {
-        return BaseService.post('auth/login/', data)
+        return BaseService.post('authenticate/', data)
     },
 
     signup: (data) => {
-        return BaseService.post('auth/register/', data)
+        return BaseService.post('register/', data)
+    },
+
+    sendEmailVerification: () => {
+        return BaseService.postWithoutBody('verifyEmail/')
     },
 
     logout: () => {
-        return BaseService.postWithoutBody('auth/logout/')
+        return BaseService.postWithoutBody('logout/')
     },
 
     forgetPassword: (data) => {
-        return BaseService.post('auth/password/reset/', data)
+        return BaseService.post('resetPassword/', data)
     },
 
     changePassword: (data) => {
         return BaseService.post('auth/password/change/', data)
     },
-    twoFactorAuth:()=>{
-        return BaseService.get('auth/mfa/')
+
+    enableMfa: () => {
+        return BaseService.postWithoutBody('mfa/enable/')
     },
-    smsAuthGet:()=>{
-        return BaseService.get('auth/mfa/sms/')
+
+    verifyMfa: (data) => {
+        return BaseService.post('mfa/verify/', data)
     },
-    smsAuthPost:(data)=>{
-        return BaseService.post('auth/mfa/sms/',data)
+
+    authMfa: (data) => {
+        return BaseService.post('mfa/auth/', data)
     },
-    authOptionDelete:()=>{
-        return BaseService.delete('auth/mfa/sms/')
+
+    deleteMfa: () => {
+        return BaseService.postWithoutBody('mfa/disable/')
     },
-    authTokenDelete:()=>{
-        return BaseService.delete('auth/mfa/token/')
-    },
-    tokenAuthGet:()=>{
-        return BaseService.get('auth/mfa/token/')
-    },
-    tokenAuthPost:(data)=>{
-        return BaseService.post('auth/mfa/token/',{})
-    },
-    authVerify:(data)=>{
-        return BaseService.post('auth/mfa/verify/',data)
-    }
 }
 
 export default authService

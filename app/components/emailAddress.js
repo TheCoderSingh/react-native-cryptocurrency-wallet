@@ -13,7 +13,7 @@ export default class Account extends Component {
           <Text style={{ fontSize: 20, color: Colors.black }}>
             {this.props.email.email}
           </Text>
-          {this.props.email.verified === true ?
+          {this.props.email.isVerified === true ?
             <Text style={{ fontSize: 15 }}>
               Verified
             </Text> :
@@ -21,38 +21,12 @@ export default class Account extends Component {
           }
 
           <View style={styles.buttons}>
-            {this.props.email.verified !== true ?
+            {this.props.email.isVerified !== true ?
               <TouchableHighlight
-                style={[styles.button, { backgroundColor: Colors.lightblue }]}
+                style={[styles.button, { backgroundColor: Colors.blue }]}
                 onPress={() => this.props.verify(this.props.email.email)} >
                 <Text style={styles.buttonText}>
                   Verify
-                </Text>
-              </TouchableHighlight> :
-              null
-            }
-            {this.props.email.primary === true ?
-              <TouchableHighlight
-                style={[styles.button, { backgroundColor: Colors.green }]}
-                onPress={null} >
-                <Text style={styles.buttonText}>
-                  Primary
-                </Text>
-              </TouchableHighlight> :
-              <TouchableHighlight
-                style={[styles.button, { backgroundColor: Colors.lightblue }]}
-                onPress={() => this.props.makePrimary(this.props.email.id)} >
-                <Text style={styles.buttonText}>
-                  Make Primary
-                </Text>
-              </TouchableHighlight>
-            }
-            {this.props.email.primary !== true ?
-              <TouchableHighlight
-                style={[styles.button, { backgroundColor: Colors.red }]}
-                onPress={() => this.props.delete(this.props.email.id)} >
-                <Text style={styles.buttonText}>
-                  Delete
                 </Text>
               </TouchableHighlight> :
               null

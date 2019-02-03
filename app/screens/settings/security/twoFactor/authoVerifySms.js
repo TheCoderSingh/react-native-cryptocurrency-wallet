@@ -18,21 +18,19 @@ import TextInput from './../../../../components/textInput'
 
 export default class AmountEntry extends Component {
     static navigationOptions = {
-        title: 'Verify mobile number',
+        title: 'Verify with two factor auth app',
     }
 
     constructor(props) {
         super(props)
-        const params = this.props.navigation.state.params
         this.state = {
             token: ''
         }
     }
 
     verify = async () => {
-        let responseJson = await AuthService.authVerify(this.state)
+        let responseJson = await AuthService.authMfa({code: this.state.token})
         if (responseJson.status === "success") {
-            const authInfo = responseJson.data
             if (this.props.navigation.state.params.isTwoFactor) {
                 await AsyncStorage.removeItem("token")
                 Auth.login(this.props.navigation, this.props.navigation.state.params.loginInfo)
@@ -53,7 +51,7 @@ export default class AmountEntry extends Component {
                 <Header
                     navigation={this.props.navigation}
                     back
-                    title="Verify mobile number"
+                    title="Verify with mfa app"
                 />
                 <KeyboardAvoidingView style={styles.mainContainer} behavior={'padding'}>
                     <View style={{flex: 1}}>
@@ -97,7 +95,7 @@ const styles = StyleSheet.create({
         backgroundColor: 'white'
     },
     VerifyButton: {
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         alignItems: 'center',
         justifyContent: 'center',
         paddingVertical: 4,
@@ -113,7 +111,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         height: 50,
         borderRadius: 25,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         alignItems: 'center',
         justifyContent: 'center',
     },

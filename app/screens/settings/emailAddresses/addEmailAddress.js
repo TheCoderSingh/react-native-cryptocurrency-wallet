@@ -1,6 +1,5 @@
 import React, {Component} from 'react'
 import {View, KeyboardAvoidingView, StyleSheet, TouchableHighlight, Text, Alert} from 'react-native'
-import SettingsService from './../../../services/settingsService'
 import ResetNavigation from './../../../util/resetNavigation'
 import TextInput from './../../../components/textInput'
 import Colors from './../../../config/colors'
@@ -13,7 +12,6 @@ export default class AmountEntry extends Component {
 
     constructor(props) {
         super(props);
-        console.log("addEmailAddress Params: "+ this.props.navigation.state.params.routeName)
         this.state = {
             routeName:this.props.navigation.state.params.routeName,
             email: '',
@@ -80,7 +78,7 @@ const styles = StyleSheet.create({
         marginHorizontal: 20,
         height: 50,
         borderRadius: 25,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         alignItems: 'center',
         justifyContent: 'center',
     },

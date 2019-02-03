@@ -7,15 +7,17 @@ import {
     KeyboardAvoidingView,
     StyleSheet,
     TouchableHighlight,
-    Text
+    Text,
 } from 'react-native'
 import AuthService from './../../services/authService'
+import UserInfoService from './../../services/userInfoService'
 import Auth from './../../util/auth'
 import ResetNavigation from './../../util/resetNavigation'
 import TextInput from './../../components/textInput'
 import Colors from './../../config/colors'
 import Constants from './../../config/constants'
 import Header from './../../components/header'
+import Spinner from 'react-native-loading-spinner-overlay'
 
 export default class Login extends Component {
     static navigationOptions = {
@@ -29,6 +31,7 @@ export default class Login extends Component {
             email: '',
             company: Constants.company_id,
             password: '',
+            loading: false,
         }
     }
 
@@ -40,32 +43,35 @@ export default class Login extends Component {
             }
             return token
         } catch (error) {
+            Auth.logout(this.props.navigation)
         }
     }
 
     login = async () => {
+        this.setState({ loading: true })
         var body = {
-            "user": this.state.email,
-            "company": this.state.company,
+            "email": this.state.email,
             "password": this.state.password,
         }
         let responseJson = await AuthService.login(body)
         if (responseJson.status === "success") {
             const loginInfo = responseJson.data
             await AsyncStorage.setItem("token", loginInfo.token)
-            let twoFactorResponse = await AuthService.twoFactorAuth()
-            if (twoFactorResponse.status === "success") {
-                const authInfo = twoFactorResponse.data
-                if (authInfo.sms === true || authInfo.token===true) {
+            let userDetails = await UserInfoService.getUserDetails()
+            if (userDetails.status === "success") {
+                const authInfo = userDetails.data
+                if (authInfo.isMfaEnabled === true) {
+                    this.setState({ loading: false })
                     this.props.navigation.navigate("AuthVerifySms", {loginInfo:loginInfo,isTwoFactor:true})
                 }
                 else {
+                    this.setState({ loading: false })
                     Auth.login(this.props.navigation, loginInfo)
                 }
             }
             else {
                 Alert.alert('Error',
-                    twoFactorResponse.message,
+                    userDetails.message,
                     [{text: 'OK'}])
             }
         }
@@ -74,6 +80,7 @@ export default class Login extends Component {
                 responseJson.message,
                 [{text: 'OK'}])
         }
+        this.setState({ loading: false })
     }
 
     render() {
@@ -85,6 +92,11 @@ export default class Login extends Component {
                     title="Login"
                 />
                 <View style={styles.mainContainer}>
+                    <Spinner
+                        visible={this.state.loading}
+                        textContent=""
+                        textStyle={{color: '#FFF'}}
+                    />
                     <KeyboardAvoidingView style={styles.container} behavior={'padding'} keyboardVerticalOffset={85}>
                         <ScrollView keyboardDismissMode={'interactive'}>
                             <TextInput
@@ -117,7 +129,7 @@ export default class Login extends Component {
                     <TouchableHighlight
                         style={styles.forgetPassword}
                         onPress={() => this.props.navigation.navigate("ForgetPassword")}>
-                        <Text style={{color: Colors.lightblue}}>
+                        <Text style={{color: Colors.blue}}>
                             Forgot Password?
                         </Text>
                     </TouchableHighlight>
@@ -143,7 +155,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         height: 50,
         borderRadius: 25,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         marginHorizontal:10,
         alignItems: 'center',
         justifyContent: 'center',
@@ -154,7 +166,7 @@ const styles = StyleSheet.create({
         height: 50,
         backgroundColor: 'white',
         width: "100%",
-        borderColor: Colors.lightblue,
+        borderColor: Colors.blue,
         alignItems: 'center',
         justifyContent: 'center',
     },

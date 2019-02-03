@@ -1,9 +1,8 @@
 import React, {Component} from 'react'
-import {View, Alert, StyleSheet, ScrollView, TouchableHighlight, Text, KeyboardAvoidingView} from 'react-native'
+import {View, Alert, StyleSheet, ScrollView, TouchableHighlight, Text, KeyboardAvoidingView, AsyncStorage} from 'react-native'
 import AuthService from './../../services/authService'
 import Auth from './../../util/auth'
 import TextInput from './../../components/textInput'
-import MobileInput from './../../components/mobileNumberInput'
 import Colors from './../../config/colors'
 import Constants from './../../config/constants'
 import Header from './../../components/header'
@@ -16,39 +15,37 @@ export default class Signup extends Component {
     constructor(props) {
         super(props)
         this.state = {
-            first_name: '',
-            last_name: '',
             email: '',
-            mobile_number: '+1',
             company: Constants.company_id,
             password1: '',
             password2: '',
         }
     }
 
-    changeCountryCode = (code) => {
-        this.setState({mobile_number: '+' + code})
-    }
-
     signup = async () => {
+        await AsyncStorage.removeItem('wallet')
+        await AsyncStorage.removeItem('user')
         let data = this.state;
-        if (data.mobile_number.length < 8) {
-            delete data.mobile_number
-        }
-        console.log(data)
-        let responseJson = await AuthService.signup(data)
-        if (responseJson.status === "success") {
-            const loginInfo = responseJson.data
-            if (data.mobile_number) {
-                this.props.navigation.navigate("AuthVerifyMobile", {loginInfo, signupInfo:this.state})
-            } else {
-                Auth.login(this.props.navigation, loginInfo)
-            }
+
+        if (this.state.password1 !== this.state.password2) {
+            Alert.alert('Error',
+                "Your passwords don't match.",
+                [{text: 'OK'}])
         }
         else {
-            Alert.alert('Error',
-                responseJson.message,
-                [{text: 'OK'}])
+            let responseJson = await AuthService.signup({ email: data.email, password: data.password1 })
+            if (responseJson.status === "success") {
+                Alert.alert('Success',
+                    "Please check your inbox and verify your email.",
+                    [{ text: 'OK', onPress: () => { 
+                        Auth.logout(this.props.navigation)
+                    }}])
+            }
+            else {
+                Alert.alert('Error',
+                    responseJson.message,
+                    [{text: 'OK'}])
+            }
         }
     }
 
@@ -64,35 +61,12 @@ export default class Signup extends Component {
                     <KeyboardAvoidingView style={styles.container} behavior={'padding'} keyboardVerticalOffset={85}>
                         <ScrollView keyboardDismissMode={'interactive'}>
                             <TextInput
-                                title="First name"
-                                underlineColorAndroid="white"
-                                placeholder="e.g. John"
-                                autoCapitalize="none"
-                                onChangeText={(first_name) => this.setState({first_name})}
-                            />
-                            <TextInput
-                                title="Last name"
-                                underlineColorAndroid="white"
-                                placeholder="e.g. Snow"
-                                autoCapitalize="none"
-                                onChangeText={(last_name) => this.setState({last_name})}
-                            />
-                            <TextInput
                                 title="Email"
                                 underlineColorAndroid="white"
                                 placeholder="e.g john@gmail.com"
                                 autoCapitalize="none"
                                 keyboardType="email-address"
                                 onChangeText={(email) => this.setState({email})}
-                            />
-                            <MobileInput
-                                title="Mobile"
-                                autoCapitalize="none"
-                                keyboardType="numeric"
-                                value={this.state.mobile_number}
-                                underlineColorAndroid="white"
-                                onChangeText={(mobile_number) => this.setState({mobile_number})}
-                                changeCountryCode={this.changeCountryCode}
                             />
                             <TextInput
                                 title="Password"
@@ -140,7 +114,7 @@ const styles = StyleSheet.create({
         marginTop: 10,
         height: 50,
         borderRadius: 25,
-        backgroundColor: Colors.lightblue,
+        backgroundColor: Colors.blue,
         marginHorizontal: 10,
         alignSelf: 'stretch',
         alignItems: 'center',

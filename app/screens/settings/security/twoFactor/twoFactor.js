@@ -11,7 +11,7 @@ export default class TwoFactor extends Component {
     }
 
     goTo = async (path) => {
-        let responseJson = await AuthService.twoFactorAuth()
+        let responseJson = await AuthService.enableMfa()
         if (responseJson.status === "success") {
             const authInfo = responseJson.data
             this.props.navigation.navigate(path, {authInfo})
@@ -31,7 +31,6 @@ export default class TwoFactor extends Component {
                     back
                     title="Two factor"
                 />
-                <Option name="SMS" gotoAddress="TwoFactorSmsAuth" goTo={this.goTo}/>
                 <Option name="Token" gotoAddress="TwoFactorToken" goTo={this.goTo}/>
             </View>
         )
