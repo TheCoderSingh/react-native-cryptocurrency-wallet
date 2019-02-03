@@ -1,23 +1,23 @@
-# Reusable Cryptocurrency Wallet | React Native
+# ReeCore REEX Cryptocurrency Wallet | React Native
 
 | Sign Up  | First Login |
 | ------------- | ------------- |
-| ![](https://danehollenbach.com/reecore/Reecore_SignUp_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_LoginNo2FA_s.gif)  |
+| ![](https://github.com/reecore-coin/official-reecore-assets/blob/master/Reecore_SignUp_s.gif)  | ![](https://github.com/reecore-coin/official-reecore-assets/blob/master/Reecore_LoginNo2FA_s.gif)  |
 
 | Enable 2FA  | 2FA Login |
 | ------------- | ------------- |
-| ![](https://danehollenbach.com/reecore/Reecore_Enable2FA_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_Login2FA_s.gif)  |
+| ![](https://github.com/reecore-coin/official-reecore-assets/blob/masterhttps://danehollenbach.com/reecore/Reecore_Enable2FA_s.gif)  | ![](https://github.com/reecore-coin/official-reecore-assets/blob/master/Reecore_Login2FA_s.gif)  |
 
 | Export Priv Key  | Receive |
 | ------------- | ------------- |
-| ![](https://danehollenbach.com/reecore/Reecore_ExportPrivKey_s.gif)  | ![](https://danehollenbach.com/reecore/Reecore_Receive_s.gif)  |
+| ![](https://github.com/reecore-coin/official-reecore-assets/blob/master/Reecore_ExportPrivKey_s.gif)  | ![](https://github.com/reecore-coin/official-reecore-assets/blob/master/Reecore_Receive_s.gif)  |
 
 ## Prerequisites
 
 * NodeJs
 * Android/IOS emulator
 * Install Expo in the emulator
-* [Backend .net core Web API](https://github.com/DHollenbach/cryptocurrency-api)
+* [Backend .net core Web API](https://github.com/reecore-coin/cryptocurrency-api)
 
 ## Getting started
 
