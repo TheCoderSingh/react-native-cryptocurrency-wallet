@@ -17,6 +17,7 @@
 * NodeJs
 * Android/IOS emulator
 * Install Expo in the emulator
+* [Backend .net core Web API](https://github.com/DHollenbach/reecore-reex-api)
 
 ## Getting started
 
