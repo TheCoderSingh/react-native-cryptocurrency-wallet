@@ -6,7 +6,7 @@
 
 | Enable 2FA  | 2FA Login |
 | ------------- | ------------- |
-| ![](https://github.com/reecore-coin/official-reecore-assets/blob/masterhttps://danehollenbach.com/reecore/Reecore_Enable2FA_s.gif)  | ![](https://github.com/reecore-coin/official-reecore-assets/blob/master/Reecore_Login2FA_s.gif)  |
+| ![](https://github.com/reecore-coin/official-reecore-assets/blob/master/Reecore_Enable2FA_s.gif)  | ![](https://github.com/reecore-coin/official-reecore-assets/blob/master/Reecore_Login2FA_s.gif)  |
 
 | Export Priv Key  | Receive |
 | ------------- | ------------- |
